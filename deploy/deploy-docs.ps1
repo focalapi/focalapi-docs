@@ -145,16 +145,8 @@ try {
   if (-not $KeepLocalBuildArtifacts) {
     # 镜像已上传到生产机；默认移除镜像和 Buildx 缓存，避免 Docker Desktop
     # 在 C: 盘持续积累构建层。排查构建问题时才显式传 -KeepLocalBuildArtifacts。
-    $previousErrorActionPreference = $ErrorActionPreference
-    $ErrorActionPreference = 'Continue'
-    try {
-      & docker image inspect $image *> $null
-      if ($LASTEXITCODE -eq 0) {
-        & docker image rm --force $image *> $null
-      }
-      & docker builder prune --all --force *> $null
-    } finally {
-      $ErrorActionPreference = $previousErrorActionPreference
-    }
+    # This cleanup is intentionally best-effort.
+    try { & docker image rm --force $image *> $null } catch {}
+    try { & docker builder prune --all --force *> $null } catch {}
   }
 }
