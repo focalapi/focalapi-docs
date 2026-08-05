@@ -1,0 +1,36 @@
+---
+title: FocalAPI 文档
+description: 一个密钥接入主流大模型与多模态能力——OpenAI 兼容接口，覆盖文本、图像、视频与搜索
+---
+
+FocalAPI 是统一的 AI 能力网关：用一个 API 密钥，以 OpenAI 兼容的接口调用主流大模型与多模态能力，按量计费、开箱即用。
+
+## 能力一览
+
+- **文本对话**：OpenAI Chat Completions、Responses、Claude Messages、Gemini 三种主流格式均可接入
+- **图像生成**：OpenAI 兼容的图像生成与编辑接口
+- **视频生成**：异步任务式接口，支持 Sora 兼容格式与 Kling、即梦原生格式
+- **搜索**：联网搜索接口，为模型补充实时信息
+- **更多**：Embeddings、重排序（Rerank）、音频转写与合成、内容审核
+
+## 从这里开始
+
+<Cards>
+  <Card title="快速开始" href="/docs/quickstart" description="5 分钟完成第一次 API 调用" />
+  <Card title="API 参考" href="/docs/api" description="全部端点的参数与示例（自动生成）" />
+  <Card title="使用指南" href="/docs/guides/chat" description="按任务场景组织的实战指南" />
+  <Card title="错误码" href="/docs/errors" description="错误响应格式与排查指引" />
+</Cards>
+
+## 基础信息
+
+| 项目 | 值 |
+| --- | --- |
+| Base URL | `https://focalapi.com` |
+| 认证方式 | `Authorization: Bearer YOUR_API_KEY` |
+| 接口风格 | REST，请求与响应均为 JSON |
+| 流式响应 | 对话类接口支持 SSE（`stream: true`） |
+
+<Callout type="info">
+自托管部署的用户请把 Base URL 替换为自己的站点域名，路径与参数完全一致。
+</Callout>

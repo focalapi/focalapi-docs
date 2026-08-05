@@ -1,0 +1,53 @@
+---
+title: Image Generation
+description: OpenAI-compatible image generation and editing
+---
+
+## Generate images
+
+`POST /v1/images/generations`, compatible with the OpenAI Images API:
+
+```bash
+curl https://focalapi.com/v1/images/generations \
+  -H "Authorization: Bearer $FOCALAPI_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "A hillside city monorail at sunset, cyberpunk style",
+    "size": "1024x1024",
+    "n": 1
+  }'
+```
+
+The response contains image URLs or base64 data (depending on `response_format` and model support):
+
+```json
+{
+  "created": 1720000000,
+  "data": [{ "url": "https://..." }]
+}
+```
+
+## Edit images
+
+`POST /v1/images/edits`: upload a source image plus a prompt for inpainting/editing, sent as `multipart/form-data`.
+
+## Key parameters
+
+| Parameter | Description |
+| --- | --- |
+| `model` | Image model name, from `/v1/models` |
+| `prompt` | Text prompt; describe concrete visual elements |
+| `size` | Resolution; allowed values vary by model (e.g. `1024x1024`, `2048x2048`, `2K`, `4K`) |
+| `n` | Number of images; server-capped, billed per image |
+| `quality` | Quality tier (some models), affects unit price |
+
+## Billing note
+
+Images are billed by **count × resolution/quality factor** — larger `n` costs more. Test with a single image before batch runs.
+
+<Cards>
+  <Card title="Comfy Cloud image models" href="/docs/guides/comfy-image-models" description="Native-compatible interfaces for GPT Image, Seedream, Gemini Image, Nano Banana and Grok" />
+  <Card title="Generation endpoint reference" href="/docs/api/images/createImage" />
+  <Card title="Billing rules" href="/docs/billing" />
+</Cards>

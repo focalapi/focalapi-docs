@@ -1,0 +1,72 @@
+---
+title: Comfy Cloud Image Models
+description: Call GPT Image, Seedream, Gemini Image, Nano Banana, and Grok through their native-compatible APIs
+---
+
+These image models run through the Comfy Cloud account pool. Clients do not need to know about the pool or workflow: select a model and use its official request and response format.
+
+<Callout type="info">
+Availability depends on your token group and administrator channel configuration. `GET /v1/models` and the Model Marketplace are the source of truth.
+</Callout>
+
+## OpenAI Images API
+
+Use `POST /v1/images/generations` for generation and `POST /v1/images/edits` for editing. Both are compatible with the OpenAI Images API.
+
+| Model ID | Product |
+| --- | --- |
+| `gpt-image-2` | GPT Image 2 |
+| `doubao-seedream-4-5-251128` | Seedream 4.5 |
+| `doubao-seedream-5-0-pro-260628` | Seedream 5.0 Pro |
+| `doubao-seedream-5-0-lite-260128` | Seedream 5.0 Lite |
+| `grok-imagine-image-quality` | Grok Imagine Quality |
+| `grok-imagine-image-pro` | Grok Imagine Pro |
+| `grok-imagine-image` | Grok Imagine |
+
+```bash
+curl https://focalapi.com/v1/images/generations \
+  -H "Authorization: Bearer $FOCALAPI_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedream-5-0-pro-260628",
+    "prompt": "A lighthouse by the sea in morning fog, cinematic lighting",
+    "size": "1024x1024",
+    "n": 1
+  }'
+```
+
+`gpt-image-2` supports `low`, `medium`, and `high` `quality`, plus `background` and single-image `mask` editing. Supported sizes, reference images, and output counts vary by model; follow the API validation response.
+
+## Native Gemini API
+
+Use Gemini's native `generateContent` endpoint for the following models. To generate an image, `generationConfig.responseModalities` must contain only `IMAGE`.
+
+| Model ID | Product |
+| --- | --- |
+| `gemini-3-pro-image-preview` | Gemini 3 Pro Image Preview |
+| `gemini-3.1-flash-image-preview` | Nano Banana 2 |
+| `gemini-3.1-flash-lite-image-preview` | Nano Banana 2 Lite |
+
+```bash
+curl 'https://focalapi.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent' \
+  -H "Authorization: Bearer $FOCALAPI_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contents": [{"parts": [{"text": "A clean product illustration of a blue ceramic mug"}]}],
+    "generationConfig": {
+      "responseModalities": ["IMAGE"]
+    }
+  }'
+```
+
+Images are returned as `inlineData` in response candidates. Use Gemini-native `aspectRatio` and `imageSize` when available; FocalAPI validates them against the selected model.
+
+## Billing and retries
+
+Pricing depends on request parameters such as image count, resolution, quality, and reference-image count. FocalAPI reserves quota before submission and settles against successful output count; a failed submission does not retain a charge. Check the Model Marketplace for current prices.
+
+<Cards>
+  <Card title="Images API reference" href="/docs/api/images/createImage" />
+  <Card title="Gemini API reference" href="/docs/api/gemini/geminiRelayV1Beta" />
+  <Card title="Billing and quota" href="/docs/billing" />
+</Cards>

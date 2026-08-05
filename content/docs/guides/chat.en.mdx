@@ -1,0 +1,68 @@
+---
+title: Chat (Text)
+description: OpenAI, Claude and Gemini chat formats — how to choose and integrate
+---
+
+FocalAPI supports all three major chat API formats with the same key. **OpenAI format is recommended** — widest ecosystem, most SDKs.
+
+## OpenAI format (recommended)
+
+`POST /v1/chat/completions`, compatible with the OpenAI SDK and most third-party clients:
+
+```bash
+curl https://focalapi.com/v1/chat/completions \
+  -H "Authorization: Bearer $FOCALAPI_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-4o-mini",
+    "messages": [
+      {"role": "system", "content": "You are a concise assistant"},
+      {"role": "user", "content": "Explain quantum computing in one sentence"}
+    ],
+    "temperature": 0.7,
+    "stream": false
+  }'
+```
+
+The newer OpenAI `POST /v1/responses` endpoint is also available (including `/v1/responses/compact`).
+
+## Claude format
+
+`POST /v1/messages`, compatible with the Anthropic Messages API — works with Claude Code and other Claude-ecosystem tools:
+
+```bash
+curl https://focalapi.com/v1/messages \
+  -H "Authorization: Bearer $FOCALAPI_KEY" \
+  -H "Content-Type: application/json" \
+  -H "anthropic-version: 2023-06-01" \
+  -d '{
+    "model": "claude-sonnet-4-5",
+    "max_tokens": 1024,
+    "messages": [{"role": "user", "content": "Hello"}]
+  }'
+```
+
+## Gemini format
+
+`POST /v1beta/models/{model}:generateContent`, compatible with the Google Gemini API:
+
+```bash
+curl "https://focalapi.com/v1beta/models/gemini-2.5-flash:generateContent" \
+  -H "Authorization: Bearer $FOCALAPI_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contents": [{"parts": [{"text": "Hello"}]}]
+  }'
+```
+
+## Notes
+
+- **Model names**: use the `id` values from `GET /v1/models`
+- **max_tokens**: subject to server-side caps per format; out-of-range values are rejected
+- **Streaming**: all three formats support streaming (SSE for OpenAI; native protocols for Claude/Gemini)
+- **Multimodal input**: image/audio input depends on model capability; request shapes mirror the official APIs
+
+<Cards>
+  <Card title="Chat endpoint reference" href="/docs/api/openai-chat/createChatCompletion" />
+  <Card title="Claude Messages reference" href="/docs/api/claude/createMessage" />
+</Cards>

@@ -1,0 +1,20 @@
+{
+  "title": "API 参考",
+  "pages": [
+    "index",
+    "models",
+    "openai-chat",
+    "openai-responses",
+    "images",
+    "video",
+    "claude",
+    "gemini",
+    "embeddings",
+    "completions",
+    "audio",
+    "rerank",
+    "moderations",
+    "realtime",
+    "not-implemented"
+  ]
+}

@@ -1,0 +1,81 @@
+---
+title: Video Generation (Async Tasks)
+description: Create a task, poll status, download the result — the async task pattern explained
+---
+
+Video generation is **asynchronous**: submit parameters, receive a task ID, poll until done, then download the result.
+
+## Task lifecycle
+
+```
+POST create task  →  returns task_id (charged at this point)
+     ↓
+GET task status   →  queued / processing / succeeded / failed
+     ↓
+Download the result on success (failed tasks are refunded automatically)
+```
+
+## 1. Create a task
+
+Unified entrypoint `POST /v1/video/generations`:
+
+```bash
+curl https://focalapi.com/v1/video/generations \
+  -H "Authorization: Bearer $FOCALAPI_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedance-1-0-pro",
+    "prompt": "Slow push-in shot, raindrops on a car window",
+    "duration": 5,
+    "size": "1280x720"
+  }'
+```
+
+Response:
+
+```json
+{ "task_id": "cst_xxxxxxxx", "status": "queued" }
+```
+
+<Callout type="warn">
+`duration` (seconds) and resolution determine the unit price, charged once at creation. Out-of-range parameters return 400.
+</Callout>
+
+## 2. Poll task status
+
+`GET /v1/video/generations/{task_id}`:
+
+```bash
+curl https://focalapi.com/v1/video/generations/cst_xxxxxxxx \
+  -H "Authorization: Bearer $FOCALAPI_KEY"
+```
+
+State machine:
+
+| Status | Meaning | Action |
+| --- | --- | --- |
+| `queued` | Waiting | Keep polling |
+| `processing` | Generating | Keep polling |
+| `succeeded` | Done | Download from the result URL or content endpoint |
+| `failed` | Failed | Read the `error` field; charge is refunded automatically |
+
+Polling guidance: every 5–10 seconds with exponential backoff; video tasks typically take 1–5 minutes.
+
+## 3. Download the result
+
+For Sora-compatible tasks, `GET /v1/videos/{task_id}/content` streams the video file directly — no expiring URLs.
+
+## Native format entrypoints
+
+Besides the unified endpoint, three native formats are available, with fields aligned to each vendor's docs:
+
+| Format | Create | Query |
+| --- | --- | --- |
+| Sora-compatible | `POST /v1/videos` | `GET /v1/videos/{task_id}` |
+| Kling | `POST /kling/v1/videos/text2video`<br/>`POST /kling/v1/videos/image2video` | `GET /kling/v1/videos/text2video/{task_id}`<br/>`GET /kling/v1/videos/image2video/{task_id}` |
+| Jimeng | `POST /jimeng/` | per response convention |
+
+<Cards>
+  <Card title="Video endpoint reference" href="/docs/api/video/createVideoGeneration" />
+  <Card title="Async task billing" href="/docs/billing" />
+</Cards>

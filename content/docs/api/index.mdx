@@ -1,0 +1,31 @@
+---
+title: API 参考
+description: 全部端点的参数、响应与在线调试（由 OpenAPI 规范自动生成）
+---
+
+本章节由 FocalAPI 的 OpenAPI 规范自动生成，覆盖全部公开端点。左侧导航按接口家族分组，每个端点页包含参数说明、响应结构与请求示例。
+
+## 通用约定
+
+| 项目 | 值 |
+| --- | --- |
+| Base URL | `https://focalapi.com` |
+| 认证 | `Authorization: Bearer YOUR_API_KEY` |
+| 内容类型 | `application/json`（文件上传为 `multipart/form-data`） |
+
+## 接口家族
+
+- **获取模型列表**：`GET /v1/models` 及 Gemini 兼容路径
+- **OpenAI 格式**：Chat Completions、Responses、Embeddings、音频、图像
+- **Claude 格式**：Messages
+- **Gemini 格式**：generateContent
+- **视频生成**：统一入口 + Sora 兼容 / Kling / 即梦原生格式
+- **其他**：Rerank、Moderations、Realtime
+
+<Callout type="info">
+标记为「未实现」分组的端点（Files、Fine-tunes）当前返回 `501 endpoint_unavailable`，见[错误码](/docs/errors)。
+</Callout>
+
+<Callout type="warn">
+搜索接口 `POST /v1/alpha/search` 暂未收录进自动生成章节，用法见[搜索指南](/docs/guides/search)。
+</Callout>

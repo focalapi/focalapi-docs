@@ -1,0 +1,53 @@
+---
+title: 图像生成
+description: OpenAI 兼容的图像生成与编辑接口
+---
+
+## 生成图像
+
+`POST /v1/images/generations`，兼容 OpenAI Images API：
+
+```bash
+curl https://focalapi.com/v1/images/generations \
+  -H "Authorization: Bearer $FOCALAPI_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-2",
+    "prompt": "夕阳下的山城轻轨，赛博朋克风格",
+    "size": "1024x1024",
+    "n": 1
+  }'
+```
+
+响应包含图像 URL 或 base64 数据（取决于 `response_format` 与模型支持）：
+
+```json
+{
+  "created": 1720000000,
+  "data": [{ "url": "https://..." }]
+}
+```
+
+## 编辑图像
+
+`POST /v1/images/edits`：上传原图 + 提示词进行局部编辑/重绘，请求为 `multipart/form-data`。
+
+## 参数要点
+
+| 参数 | 说明 |
+| --- | --- |
+| `model` | 图像模型名，以 `/v1/models` 列表为准 |
+| `prompt` | 提示词；中文提示词建议描述具体画面元素 |
+| `size` | 分辨率，可选值随模型不同（如 `1024x1024`、`2048x2048`、`2K`、`4K`） |
+| `n` | 张数，有服务端上限，按张计费 |
+| `quality` | 质量档位（部分模型支持），影响单价 |
+
+## 计费提醒
+
+图像按 **张数 × 分辨率/质量系数** 计费，`n` 越大费用越高。批量出图前先单张试跑确认效果与单价。
+
+<Cards>
+  <Card title="Comfy Cloud 图像模型" href="/docs/guides/comfy-image-models" description="GPT Image、Seedream、Gemini 图像、Nano Banana 与 Grok 的原生兼容接口" />
+  <Card title="生成接口参数详情" href="/docs/api/images/createImage" />
+  <Card title="计费规则" href="/docs/billing" />
+</Cards>

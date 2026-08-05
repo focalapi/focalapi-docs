@@ -1,0 +1,40 @@
+---
+title: FocalAPI Docs
+description: One key for mainstream LLMs and multimodal capabilities — OpenAI-compatible APIs for chat, images, video and search
+---
+
+FocalAPI is a unified AI capability gateway: call mainstream LLMs and multimodal models through OpenAI-compatible APIs with a single key, pay-as-you-go.
+
+## Capabilities
+
+- **Chat**: OpenAI Chat Completions, Responses, Claude Messages and Gemini formats
+- **Images**: OpenAI-compatible image generation and editing
+- **Video**: asynchronous task APIs, Sora-compatible plus Kling and Jimeng native formats
+- **Search**: web search API to ground model answers with live information
+- **More**: Embeddings, Rerank, audio transcription & speech, moderation
+
+## Start here
+
+<Cards>
+  <Card title="Quickstart" href="/docs/quickstart" description="Make your first API call in 5 minutes" />
+  <Card title="API Reference" href="/docs/api" description="Every endpoint with parameters and examples (auto-generated)" />
+  <Card title="Guides" href="/docs/guides/chat" description="Task-oriented how-to guides" />
+  <Card title="Error Codes" href="/docs/errors" description="Error format and troubleshooting" />
+</Cards>
+
+## Essentials
+
+| Item | Value |
+| --- | --- |
+| Base URL | `https://focalapi.com` |
+| Authentication | `Authorization: Bearer YOUR_API_KEY` |
+| Style | REST, JSON requests and responses |
+| Streaming | SSE on chat endpoints (`stream: true`) |
+
+<Callout type="info">
+If you self-host FocalAPI, replace the Base URL with your own domain. Paths and parameters are identical.
+</Callout>
+
+<Callout type="warn">
+The English documentation is being translated. Pages without an English version fall back to Simplified Chinese.
+</Callout>

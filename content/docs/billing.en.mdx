@@ -1,0 +1,44 @@
+---
+title: Billing & Quota
+description: The quota model, pre-charge and settlement, usage tracking and top-up
+---
+
+FocalAPI is **prepaid, pay-as-you-go**: top up to receive quota, and every call deducts quota based on model price and usage.
+
+## How billing works
+
+| Capability | Billed by |
+| --- | --- |
+| Chat / Embeddings / Rerank | Token usage × model ratio (input and output priced separately) |
+| Image generation | Count × resolution/quality factor |
+| Audio transcription / speech | Audio duration or tokens (model-dependent) |
+| Video generation | Per task: priced by duration, resolution and other parameters |
+| Search | Per call |
+
+See the console **Model Square** for current prices.
+
+## Pre-charge and settlement
+
+Chat-style requests are billed in two phases:
+
+1. **Pre-charge**: an estimated amount is frozen when the request starts;
+2. **Settlement**: after the response completes, the actual token usage is charged and the difference refunded.
+
+For long outputs, your balance must cover the pre-charge cap before the request can start; otherwise the API returns `402`.
+
+## Async task billing (video, etc.)
+
+Async tasks such as video generation are charged **once at task creation** based on task parameters. Failed tasks are automatically refunded according to the final task status.
+
+## Track usage
+
+- Console **Logs**: per-request token usage and charges
+- Console **Quota** pages: current balance and top-up history
+
+## Top up
+
+Choose an amount on the console **Top-up** page; quota arrives instantly. For corporate transfers or invoices, contact the site operator.
+
+<Callout type="info">
+Production tip: set per-token quota limits for critical workloads and export usage logs regularly for reconciliation.
+</Callout>

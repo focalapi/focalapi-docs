@@ -1,0 +1,8 @@
+# 镜像内静态服务（文档站为 Next.js 静态导出，同时存在 <page>.html 与 <page>/index.html 两种形态）
+:80 {
+	root * /srv
+	encode gzip
+
+	try_files {path} {path}.html {path}/index.html
+	file_server
+}

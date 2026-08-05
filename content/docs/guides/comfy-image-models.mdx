@@ -1,0 +1,72 @@
+---
+title: Comfy Cloud 图像模型
+description: 用模型原生兼容的接口调用 GPT Image、Seedream、Gemini 图像、Nano Banana 与 Grok
+---
+
+这些图像模型由 Comfy Cloud 账户池执行，但客户端不需要了解账户池或工作流。选择模型后，继续使用其官方原生的请求与响应格式。
+
+<Callout type="info">
+模型是否可调用取决于令牌分组和管理员的渠道配置；以 `GET /v1/models` 与控制台模型广场的实际结果为准。
+</Callout>
+
+## OpenAI Images 接口
+
+以下模型使用 `POST /v1/images/generations`；编辑图片时使用 `POST /v1/images/edits`。请求和响应与 OpenAI Images API 保持兼容。
+
+| 模型 ID | 产品名称 |
+| --- | --- |
+| `gpt-image-2` | GPT Image 2 |
+| `doubao-seedream-4-5-251128` | Seedream 4.5 |
+| `doubao-seedream-5-0-pro-260628` | Seedream 5.0 Pro |
+| `doubao-seedream-5-0-lite-260128` | Seedream 5.0 Lite |
+| `grok-imagine-image-quality` | Grok Imagine Quality |
+| `grok-imagine-image-pro` | Grok Imagine Pro |
+| `grok-imagine-image` | Grok Imagine |
+
+```bash
+curl https://focalapi.com/v1/images/generations \
+  -H "Authorization: Bearer $FOCALAPI_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedream-5-0-pro-260628",
+    "prompt": "晨雾中的海边灯塔，电影感光影",
+    "size": "1024x1024",
+    "n": 1
+  }'
+```
+
+`gpt-image-2` 支持 `low`、`medium`、`high` 三档 `quality`，并支持 `background` 与单图 `mask` 编辑。其余模型支持的尺寸、参考图与输出张数不同；提交前请以接口返回的校验结果为准。
+
+## Gemini 原生接口
+
+以下模型使用 Gemini 的原生 `generateContent` 接口。生成图像时，`generationConfig.responseModalities` 必须只包含 `IMAGE`。
+
+| 模型 ID | 产品名称 |
+| --- | --- |
+| `gemini-3-pro-image-preview` | Gemini 3 Pro Image Preview |
+| `gemini-3.1-flash-image-preview` | Nano Banana 2 |
+| `gemini-3.1-flash-lite-image-preview` | Nano Banana 2 Lite |
+
+```bash
+curl 'https://focalapi.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent' \
+  -H "Authorization: Bearer $FOCALAPI_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contents": [{"parts": [{"text": "A clean product illustration of a blue ceramic mug"}]}],
+    "generationConfig": {
+      "responseModalities": ["IMAGE"]
+    }
+  }'
+```
+
+输出图片在响应候选项的 `inlineData` 中返回。需要指定构图或清晰度时，按 Gemini 原生字段使用 `aspectRatio` 与 `imageSize`；FocalAPI 会按模型能力校验参数。
+
+## 计费与重试
+
+价格与请求参数相关，例如图片张数、分辨率、质量档位和参考图数量。FocalAPI 会在提交任务前预扣，并以实际成功输出的张数结算；提交失败不会保留本次请求的费用。具体单价以控制台模型广场为准。
+
+<Cards>
+  <Card title="图像生成 API 参考" href="/docs/api/images/createImage" />
+  <Card title="Gemini API 参考" href="/docs/api/gemini/geminiRelayV1Beta" />
+  <Card title="计费与额度" href="/docs/billing" />
+</Cards>

@@ -1,0 +1,112 @@
+---
+title: 快速开始
+description: 5 分钟完成第一次 API 调用：创建密钥、发送请求、接入 SDK
+---
+
+本指南带你完成第一次 FocalAPI 调用。全程只需要一个 API 密钥。
+
+## 1. 获取 API 密钥
+
+1. 登录 [FocalAPI 控制台](https://focalapi.com)（没有账号先注册）。
+2. 进入 **令牌** 页面，点击 **添加令牌**。
+3. 复制生成的密钥（形如 `sk-...`）。密钥只在创建时完整展示，请妥善保存。
+
+## 2. 第一次调用（curl）
+
+以对话接口为例，把 `$FOCALAPI_KEY` 换成你的密钥：
+
+```bash
+curl https://focalapi.com/v1/chat/completions \
+  -H "Authorization: Bearer $FOCALAPI_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-4o-mini",
+    "messages": [{"role": "user", "content": "你好，介绍一下你自己"}]
+  }'
+```
+
+响应结构与 OpenAI 完全一致：
+
+```json
+{
+  "id": "chatcmpl-...",
+  "object": "chat.completion",
+  "choices": [
+    {
+      "index": 0,
+      "message": { "role": "assistant", "content": "你好！我是..." },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": { "prompt_tokens": 12, "completion_tokens": 30, "total_tokens": 42 }
+}
+```
+
+## 3. 接入 OpenAI SDK
+
+FocalAPI 与 OpenAI SDK 完全兼容，只需改 `base_url` 和 `api_key`：
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://focalapi.com/v1",
+    api_key="sk-...",
+)
+
+resp = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[{"role": "user", "content": "你好"}],
+)
+print(resp.choices[0].message.content)
+```
+
+```ts
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://focalapi.com/v1',
+  apiKey: 'sk-...',
+});
+
+const resp = await client.chat.completions.create({
+  model: 'gpt-4o-mini',
+  messages: [{ role: 'user', content: '你好' }],
+});
+console.log(resp.choices[0].message.content);
+```
+
+## 4. 流式输出
+
+传入 `stream: true`，通过 SSE 逐段接收：
+
+```python
+stream = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[{"role": "user", "content": "写一首短诗"}],
+    stream=True,
+)
+for chunk in stream:
+    print(chunk.choices[0].delta.content or "", end="")
+```
+
+## 5. 查看可用模型
+
+```bash
+curl https://focalapi.com/v1/models \
+  -H "Authorization: Bearer $FOCALAPI_KEY"
+```
+
+也可以在控制台的 **模型广场** 查看当前可用模型与价格。
+
+<Callout type="info">
+可用模型和实时价格以控制台的 **模型广场** 为准；模型可用性取决于你的令牌分组与管理员配置。
+</Callout>
+
+## 下一步
+
+<Cards>
+  <Card title="认证方式详解" href="/docs/authentication" />
+  <Card title="计费与额度" href="/docs/billing" />
+  <Card title="API 参考" href="/docs/api" />
+</Cards>

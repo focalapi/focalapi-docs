@@ -1,0 +1,52 @@
+---
+title: 搜索
+description: 联网搜索接口，为模型补充实时信息
+---
+
+搜索接口 `POST /v1/alpha/search` 提供独立的联网搜索能力，返回结构化搜索结果，可直接喂给模型做检索增强（RAG）或事实核对。
+
+## 基本调用
+
+```bash
+curl https://focalapi.com/v1/alpha/search \
+  -H "Authorization: Bearer $FOCALAPI_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "2026 世界人工智能大会 时间 地点"
+  }'
+```
+
+## 典型用法：搜索 + 对话两轮调用
+
+1. 先调搜索接口拿到实时结果；
+2. 把结果摘要拼入对话接口的上下文，让模型基于最新信息回答。
+
+```python
+from openai import OpenAI
+import requests
+
+KEY = "sk-..."
+BASE = "https://focalapi.com"
+
+# 1. 搜索
+hits = requests.post(
+    f"{BASE}/v1/alpha/search",
+    headers={"Authorization": f"Bearer {KEY}"},
+    json={"query": "今日 AI 行业新闻"},
+).json()
+
+# 2. 对话（把搜索结果放入 system 上下文）
+client = OpenAI(base_url=f"{BASE}/v1", api_key=KEY)
+resp = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[
+        {"role": "system", "content": f"基于以下搜索结果回答：\n{hits}"},
+        {"role": "user", "content": "今天 AI 行业有什么大事？"},
+    ],
+)
+print(resp.choices[0].message.content)
+```
+
+## 计费
+
+按调用次数计费，详见[计费与额度](/docs/billing)。

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Deploy FocalAPI Docs"
+  short_description: "Build, deploy, and verify FocalAPI Docs"
+  default_prompt: "Use $deploy-focalapi-docs to deploy and verify the FocalAPI documentation site."

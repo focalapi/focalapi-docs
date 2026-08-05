@@ -1,0 +1,44 @@
+---
+title: Error Codes
+description: Error response format and troubleshooting for common error codes
+---
+
+## Error response format
+
+Errors return a non-2xx status with a JSON body:
+
+```json
+{
+  "error": {
+    "message": "no available channel (distributor) (request id: ...)",
+    "type": "focal_api_error",
+    "code": "insufficient_quota"
+  }
+}
+```
+
+When troubleshooting, record the HTTP status, `error.code`, and the request id from the response.
+
+## Common error codes
+
+| HTTP | code | Meaning | What to do |
+| --- | --- | --- | --- |
+| 400 | `invalid_request_error` | Missing/illegal parameters (e.g. `duration` out of range, wrong model name) | Check parameters against the API reference |
+| 401 | `invalid_api_key` | Key missing, invalid or deleted | Verify the `Authorization` header and token status |
+| 402 | `insufficient_quota` | Insufficient balance (including pre-charge cap) | Top up and retry; check token quota limits |
+| 403 | `permission_denied` | No access to the model/feature | Confirm group and token model scope |
+| 429 | `rate_limit_exceeded` | Rate limited | Reduce concurrency; retry with exponential backoff |
+| 500 | `internal_error` | Server error | Contact the operator with the request id |
+| 501 | `endpoint_unavailable` | Endpoint not implemented/open (e.g. Files, Fine-tunes) | Use an available endpoint instead |
+| 502/503 | `upstream_error` | Upstream model service failure | Retry later; report persistent failures |
+
+## Async task errors
+
+A failed video task is not an HTTP error — the task status becomes `failed`, details live in the task's `error` field, and the charge is refunded automatically.
+
+## Troubleshooting checklist
+
+1. What are the HTTP status and `error.code`?
+2. Does the same key work in the console Playground? (Separates config issues from code issues)
+3. Does the model name match `GET /v1/models` exactly?
+4. For streaming, are SSE frames handled correctly?

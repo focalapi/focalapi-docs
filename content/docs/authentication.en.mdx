@@ -1,0 +1,43 @@
+---
+title: Authentication
+description: Create, use and manage API keys
+---
+
+## Bearer authentication
+
+Every API request carries the key in the `Authorization` header:
+
+```
+Authorization: Bearer sk-xxxxxxxxxxxxxxxx
+```
+
+Missing or invalid keys return `401` (see [Error Codes](/docs/errors)).
+
+## Token management
+
+Create multiple tokens in the console **Tokens** page — one per app/environment is recommended:
+
+| Setting | Description |
+| --- | --- |
+| Name | A recognizable label, e.g. `prod-backend` |
+| Model scope | Restrict which models the token can call; empty means all available models |
+| Expiration | When the token stops working; rotate periodically |
+| Quota limit | Maximum quota the token may consume, capping potential overspend |
+
+<Callout type="warn">
+A key is an account credential:
+- Never embed it in frontend code, client apps, or public repositories
+- Inject it server-side via environment variables, e.g. `FOCALAPI_KEY`
+- If leaked, delete and recreate it in the console immediately
+</Callout>
+
+## User groups and pricing
+
+Available models and prices may vary per user group. A token's effective model scope is the intersection of the token scope and your account group's models. Calling an unauthorized model returns a 4xx error.
+
+## Header cheat sheet
+
+| Header | Required | Description |
+| --- | --- | --- |
+| `Authorization` | Yes | `Bearer YOUR_API_KEY` |
+| `Content-Type` | POST | `application/json` (`multipart/form-data` for file uploads) |

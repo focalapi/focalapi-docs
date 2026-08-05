@@ -1,0 +1,81 @@
+---
+title: 视频生成（异步任务）
+description: 创建任务、轮询状态、下载成片——异步任务模式详解
+---
+
+视频生成是**异步任务**：提交参数后先拿到任务 ID，再轮询状态，成功后下载成片。同步等待 HTTP 响应不会阻塞到出片。
+
+## 任务生命周期
+
+```
+POST 创建任务  →  返回 task_id（此时扣费）
+     ↓
+GET 查询任务   →  状态: queued / processing / succeeded / failed
+     ↓
+成功后用内容接口下载成片（失败自动退费）
+```
+
+## 1. 创建任务
+
+统一入口 `POST /v1/video/generations`：
+
+```bash
+curl https://focalapi.com/v1/video/generations \
+  -H "Authorization: Bearer $FOCALAPI_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedance-1-0-pro",
+    "prompt": "镜头缓慢推近，雨滴落在车窗上",
+    "duration": 5,
+    "size": "1280x720"
+  }'
+```
+
+响应：
+
+```json
+{ "task_id": "cst_xxxxxxxx", "status": "queued" }
+```
+
+<Callout type="warn">
+`duration`（秒）与分辨率直接决定任务单价，创建任务时一次性扣费。参数有服务端上限，超限返回 400。
+</Callout>
+
+## 2. 轮询任务状态
+
+`GET /v1/video/generations/{task_id}`：
+
+```bash
+curl https://focalapi.com/v1/video/generations/cst_xxxxxxxx \
+  -H "Authorization: Bearer $FOCALAPI_KEY"
+```
+
+状态机：
+
+| 状态 | 含义 | 建议动作 |
+| --- | --- | --- |
+| `queued` | 排队中 | 继续轮询 |
+| `processing` | 生成中 | 继续轮询 |
+| `succeeded` | 成功 | 取结果 URL 或调内容接口下载 |
+| `failed` | 失败 | 读取 `error` 字段；费用自动退回 |
+
+轮询建议：每 5–10 秒一次，配合指数退避；视频任务通常需要 1–5 分钟。
+
+## 3. 下载成片
+
+任务成功后，Sora 兼容格式还提供内容代理接口 `GET /v1/videos/{task_id}/content`，直接返回视频文件流，避免结果 URL 过期问题。
+
+## 原生格式入口
+
+除统一入口外，还提供三家原生格式，字段与各家官方文档对齐：
+
+| 格式 | 创建 | 查询 |
+| --- | --- | --- |
+| Sora 兼容 | `POST /v1/videos` | `GET /v1/videos/{task_id}` |
+| Kling | `POST /kling/v1/videos/text2video`<br/>`POST /kling/v1/videos/image2video` | `GET /kling/v1/videos/text2video/{task_id}`<br/>`GET /kling/v1/videos/image2video/{task_id}` |
+| 即梦 | `POST /jimeng/` | 随响应约定 |
+
+<Cards>
+  <Card title="视频接口参数详情" href="/docs/api/video/createVideoGeneration" />
+  <Card title="异步任务计费说明" href="/docs/billing" />
+</Cards>

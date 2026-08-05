@@ -1,0 +1,112 @@
+---
+title: Quickstart
+description: Make your first API call in 5 minutes — create a key, send a request, plug in the SDK
+---
+
+This guide walks you through your first FocalAPI call. All you need is one API key.
+
+## 1. Get an API key
+
+1. Log in to the [FocalAPI console](https://focalapi.com) (register first if needed).
+2. Open the **Tokens** page and click **Add token**.
+3. Copy the generated key (`sk-...`). It is shown in full only once — store it safely.
+
+## 2. First call (curl)
+
+Replace `$FOCALAPI_KEY` with your key:
+
+```bash
+curl https://focalapi.com/v1/chat/completions \
+  -H "Authorization: Bearer $FOCALAPI_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-4o-mini",
+    "messages": [{"role": "user", "content": "Hello, introduce yourself"}]
+  }'
+```
+
+The response shape is identical to OpenAI:
+
+```json
+{
+  "id": "chatcmpl-...",
+  "object": "chat.completion",
+  "choices": [
+    {
+      "index": 0,
+      "message": { "role": "assistant", "content": "Hello! I am..." },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": { "prompt_tokens": 12, "completion_tokens": 30, "total_tokens": 42 }
+}
+```
+
+## 3. Use the OpenAI SDK
+
+FocalAPI is fully compatible with the OpenAI SDK — just change `base_url` and `api_key`:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://focalapi.com/v1",
+    api_key="sk-...",
+)
+
+resp = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[{"role": "user", "content": "Hello"}],
+)
+print(resp.choices[0].message.content)
+```
+
+```ts
+import OpenAI from 'openai';
+
+const client = new OpenAI({
+  baseURL: 'https://focalapi.com/v1',
+  apiKey: 'sk-...',
+});
+
+const resp = await client.chat.completions.create({
+  model: 'gpt-4o-mini',
+  messages: [{ role: 'user', content: 'Hello' }],
+});
+console.log(resp.choices[0].message.content);
+```
+
+## 4. Streaming
+
+Pass `stream: true` to receive tokens over SSE:
+
+```python
+stream = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[{"role": "user", "content": "Write a short poem"}],
+    stream=True,
+)
+for chunk in stream:
+    print(chunk.choices[0].delta.content or "", end="")
+```
+
+## 5. List available models
+
+```bash
+curl https://focalapi.com/v1/models \
+  -H "Authorization: Bearer $FOCALAPI_KEY"
+```
+
+You can also browse models and prices in the console's **Model Square**.
+
+<Callout type="info">
+No code? The console **Playground** lets you try chat, image and video capabilities interactively.
+</Callout>
+
+## Next steps
+
+<Cards>
+  <Card title="Authentication" href="/docs/authentication" />
+  <Card title="Billing & Quota" href="/docs/billing" />
+  <Card title="API Reference" href="/docs/api" />
+</Cards>

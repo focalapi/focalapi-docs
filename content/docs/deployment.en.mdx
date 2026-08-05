@@ -1,0 +1,50 @@
+---
+title: Deployment
+description: Self-hosting FocalAPI — Docker deployment, key environment variables and upgrades
+---
+
+This page is for self-hosting administrators. API users don't need it.
+
+## Quick start with Docker Compose
+
+The FocalAPI server ships as a single Go binary plus static frontend assets, with an official Docker image and compose config:
+
+```bash
+git clone https://gitee.com/xnn-ai/focalapi-llm.git
+cd focalapi-llm
+docker compose up -d
+```
+
+SQLite is used by default for a zero-config start. For production, switch to MySQL or PostgreSQL and configure Redis.
+
+## Key environment variables
+
+| Variable | Description |
+| --- | --- |
+| `SQL_DSN` | Primary database DSN (SQLite when unset) |
+| `REDIS_CONN_STRING` | Redis connection string (cache / rate limiting / task state) |
+| `SESSION_SECRET` | Session signing secret — must be set explicitly in production |
+| `FOCALAPI_ENV` | Set to `production` to enable production mode (enforces secure cookies, etc.) |
+| `CORS_ALLOWED_ORIGINS` | Comma-separated CORS allowlist; same-origin only by default |
+
+## Reverse proxy
+
+Serve the site at the domain root (`/`). Caddy example:
+
+```txt
+api.example.com {
+    reverse_proxy 127.0.0.1:3000
+}
+```
+
+## Upgrading
+
+1. Back up the database;
+2. Pull the new image and restart: `docker compose pull && docker compose up -d`;
+3. Database migrations run automatically at startup — watch the logs for errors.
+
+<Callout type="warn">
+Always read the release notes for breaking changes before upgrading; rehearse major upgrades in a staging environment first.
+</Callout>
+
+See the `deploy/` directory and README in the source repository for more details.
