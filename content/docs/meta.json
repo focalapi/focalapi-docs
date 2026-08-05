@@ -1,4 +1,4 @@
 {
   "title": "FocalAPI 文档",
-  "pages": ["index", "quickstart", "authentication", "billing", "guides", "api", "deployment", "errors"]
+  "pages": ["index", "product-scope", "quickstart", "authentication", "billing", "guides", "api", "errors"]
 }

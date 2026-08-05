@@ -3,7 +3,7 @@ title: 获取 Kling 文生视频任务状态
 full: true
 _openapi:
   preload:
-    - ./openapi/relay.json
+    - ./openapi/creative-relay.json
   method: GET
   webhook: false
   deprecated: false
@@ -23,7 +23,7 @@ export default function Layout(props) {
   return (
     <>
       {props.children}
-      <Comp document="./openapi/relay.json" operations={[{"path":"/kling/v1/videos/text2video/{task_id}","method":"get"}]} showDescription />
+      <Comp document="./openapi/creative-relay.json" operations={[{"path":"/kling/v1/videos/text2video/{task_id}","method":"get"}]} showDescription />
     </>
   );
 }

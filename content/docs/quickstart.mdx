@@ -1,112 +1,60 @@
 ---
 title: 快速开始
-description: 5 分钟完成第一次 API 调用：创建密钥、发送请求、接入 SDK
+description: 用一个创作模型完成第一次 FocalAPI 调用
 ---
 
-本指南带你完成第一次 FocalAPI 调用。全程只需要一个 API 密钥。
+本指南用图像生成演示 FocalAPI 的基本流程。开始前请在控制台创建 API Key，并以 `GET /v1/models` 和模型广场确认当前 Key 可用的模型。
 
-## 1. 获取 API 密钥
-
-1. 登录 [FocalAPI 控制台](https://focalapi.com)（没有账号先注册）。
-2. 进入 **令牌** 页面，点击 **添加令牌**。
-3. 复制生成的密钥（形如 `sk-...`）。密钥只在创建时完整展示，请妥善保存。
-
-## 2. 第一次调用（curl）
-
-以对话接口为例，把 `$FOCALAPI_KEY` 换成你的密钥：
+## 1. 查询可用模型
 
 ```bash
-curl https://focalapi.com/v1/chat/completions \
-  -H "Authorization: Bearer $FOCALAPI_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "gpt-4o-mini",
-    "messages": [{"role": "user", "content": "你好，介绍一下你自己"}]
-  }'
-```
-
-响应结构与 OpenAI 完全一致：
-
-```json
-{
-  "id": "chatcmpl-...",
-  "object": "chat.completion",
-  "choices": [
-    {
-      "index": 0,
-      "message": { "role": "assistant", "content": "你好！我是..." },
-      "finish_reason": "stop"
-    }
-  ],
-  "usage": { "prompt_tokens": 12, "completion_tokens": 30, "total_tokens": 42 }
-}
-```
-
-## 3. 接入 OpenAI SDK
-
-FocalAPI 与 OpenAI SDK 完全兼容，只需改 `base_url` 和 `api_key`：
-
-```python
-from openai import OpenAI
-
-client = OpenAI(
-    base_url="https://focalapi.com/v1",
-    api_key="sk-...",
-)
-
-resp = client.chat.completions.create(
-    model="gpt-4o-mini",
-    messages=[{"role": "user", "content": "你好"}],
-)
-print(resp.choices[0].message.content)
-```
-
-```ts
-import OpenAI from 'openai';
-
-const client = new OpenAI({
-  baseURL: 'https://focalapi.com/v1',
-  apiKey: 'sk-...',
-});
-
-const resp = await client.chat.completions.create({
-  model: 'gpt-4o-mini',
-  messages: [{ role: 'user', content: '你好' }],
-});
-console.log(resp.choices[0].message.content);
-```
-
-## 4. 流式输出
-
-传入 `stream: true`，通过 SSE 逐段接收：
-
-```python
-stream = client.chat.completions.create(
-    model="gpt-4o-mini",
-    messages=[{"role": "user", "content": "写一首短诗"}],
-    stream=True,
-)
-for chunk in stream:
-    print(chunk.choices[0].delta.content or "", end="")
-```
-
-## 5. 查看可用模型
-
-```bash
-curl https://focalapi.com/v1/models \
+curl https://api.focalapi.com/v1/models \
   -H "Authorization: Bearer $FOCALAPI_KEY"
 ```
 
-也可以在控制台的 **模型广场** 查看当前可用模型与价格。
+只使用响应中存在的模型 ID。不同用户分组的可见模型、参数与价格可能不同。
 
-<Callout type="info">
-可用模型和实时价格以控制台的 **模型广场** 为准；模型可用性取决于你的令牌分组与管理员配置。
-</Callout>
+## 2. 生成第一张图片
+
+下面以 Seedream 5.0 Pro 为例；如果它不在你的模型列表中，请换成列表里的图像模型。
+
+```bash
+curl https://api.focalapi.com/v1/images/generations \
+  -H "Authorization: Bearer $FOCALAPI_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedream-5-0-pro-260628",
+    "prompt": "电影感海边灯塔，晨雾，柔和的蓝金色光线",
+    "size": "1024x1024",
+    "n": 1
+  }'
+```
+
+响应会返回图像 URL 或 base64 数据，具体取决于模型与请求参数。
+
+## 3. 创建视频任务
+
+视频是异步任务：先创建、再轮询、最后下载成片。
+
+```bash
+curl https://api.focalapi.com/v1/video/generations \
+  -H "Authorization: Bearer $FOCALAPI_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "doubao-seedance-2-0-mini-260615",
+    "prompt": "镜头缓慢推进雨中的城市霓虹街道",
+    "duration": 5,
+    "size": "1280x720"
+  }'
+```
+
+拿到 `task_id` 后，使用 `GET /v1/video/generations/{task_id}` 查询状态。完整流程见[视频任务指南](/docs/guides/video-tasks)。
 
 ## 下一步
 
 <Cards>
-  <Card title="认证方式详解" href="/docs/authentication" />
+  <Card title="图像模型" href="/docs/guides/comfy-image-models" />
+  <Card title="视频任务" href="/docs/guides/video-tasks" />
+  <Card title="音频创作" href="/docs/guides/audio" />
   <Card title="计费与额度" href="/docs/billing" />
-  <Card title="API 参考" href="/docs/api" />
 </Cards>

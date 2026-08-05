@@ -1,0 +1,24 @@
+---
+title: Product Scope
+description: FocalAPI's fixed product focus and documentation boundary
+---
+
+FocalAPI is a model gateway for creative workflows. Its primary surface is **image, video, audio, 3D, and other visual-creation models**; model selection, API guidance, and billing are organized around creative work.
+
+## Primary capabilities
+
+- Image generation, editing, and reference-image workflows
+- Video generation, task polling, and asset download
+- Audio transcription and speech synthesis
+- 3D and other visual-creation models when enabled in the live model catalog
+- Native request semantics and response formats for each creative model
+
+## Text capability boundary
+
+DeepSeek is the only general-purpose text fallback exposed to users. It can help with prompts, outlines, and lightweight text tasks, but it is not the product's primary direction.
+
+OpenAI, Claude, Claude Code, general coding models, and other text-model surfaces are not documented as primary features, navigation entries, or homepage examples. A non-creative endpoint in the upstream specification is not automatically published here.
+
+<Callout type="info">
+Use the live model catalog in the console and `GET /v1/models` as the source of truth for availability, parameters, and pricing.
+</Callout>

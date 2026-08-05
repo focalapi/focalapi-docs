@@ -3,18 +3,10 @@
   "pages": [
     "index",
     "models",
-    "openai-chat",
-    "openai-responses",
+    "deepseek",
     "images",
     "video",
-    "claude",
-    "gemini",
-    "embeddings",
-    "completions",
     "audio",
-    "rerank",
-    "moderations",
-    "realtime",
-    "not-implemented"
+    "gemini-image"
   ]
 }

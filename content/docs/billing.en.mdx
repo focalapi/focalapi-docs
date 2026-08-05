@@ -1,44 +1,29 @@
 ---
-title: Billing & Quota
-description: The quota model, pre-charge and settlement, usage tracking and top-up
+title: Billing and Quota
+description: Pre-charge, settlement, and usage management for creative models
 ---
 
-FocalAPI is **prepaid, pay-as-you-go**: top up to receive quota, and every call deducts quota based on model price and usage.
+FocalAPI uses prepaid, usage-based billing. Image, video, audio, and other visual-creation tasks settle against the selected model's official price and the actual request parameters. The model catalog in the console is the single source of truth for unit prices.
 
-## How billing works
+## Billing basis
 
-| Capability | Billed by |
+| Capability | Billing basis |
 | --- | --- |
-| Chat / Embeddings / Rerank | Token usage × model ratio (input and output priced separately) |
-| Image generation | Count × resolution/quality factor |
-| Audio transcription / speech | Audio duration or tokens (model-dependent) |
-| Video generation | Per task: priced by duration, resolution and other parameters |
-| Search | Per call |
-
-See the console **Model Square** for current prices.
+| Image generation and editing | Output count, size, quality, reference images, and model-specific parameters |
+| Video generation | Duration, resolution, model tier, and other task parameters |
+| Transcription and speech | Audio duration, characters, or the model's official billing unit |
+| DeepSeek (fallback) | Actual input and output token usage |
 
 ## Pre-charge and settlement
 
-Chat-style requests are billed in two phases:
+FocalAPI pre-charges the determinable request parameters before submission, then settles the difference against the actual result when the response or task finishes. Failed image and video tasks do not retain a charge; use the task status as the final record.
 
-1. **Pre-charge**: an estimated amount is frozen when the request starts;
-2. **Settlement**: after the response completes, the actual token usage is charged and the difference refunded.
+## Check usage
 
-For long outputs, your balance must cover the pre-charge cap before the request can start; otherwise the API returns `402`.
-
-## Async task billing (video, etc.)
-
-Async tasks such as video generation are charged **once at task creation** based on task parameters. Failed tasks are automatically refunded according to the final task status.
-
-## Track usage
-
-- Console **Logs**: per-request token usage and charges
-- Console **Quota** pages: current balance and top-up history
-
-## Top up
-
-Choose an amount on the console **Top-up** page; quota arrives instantly. For corporate transfers or invoices, contact the site operator.
+- Console logs: request, model, parameters, and charge detail
+- Model catalog: currently available models and official unit prices
+- Quota pages: balance, top-ups, and token limits
 
 <Callout type="info">
-Production tip: set per-token quota limits for critical workloads and export usage logs regularly for reconciliation.
+Before a batch run, validate parameters, quality, and unit price with one image or a short video. Supported sizes, duration, and concurrency differ by model.
 </Callout>

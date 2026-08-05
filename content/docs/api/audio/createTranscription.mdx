@@ -3,7 +3,7 @@ title: 音频转录
 full: true
 _openapi:
   preload:
-    - ./openapi/relay.json
+    - ./openapi/creative-relay.json
   method: POST
   webhook: false
   deprecated: false
@@ -23,7 +23,7 @@ export default function Layout(props) {
   return (
     <>
       {props.children}
-      <Comp document="./openapi/relay.json" operations={[{"path":"/v1/audio/transcriptions","method":"post"}]} showDescription />
+      <Comp document="./openapi/creative-relay.json" operations={[{"path":"/v1/audio/transcriptions","method":"post"}]} showDescription />
     </>
   );
 }

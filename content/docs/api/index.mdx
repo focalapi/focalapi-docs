@@ -1,31 +1,28 @@
 ---
-title: API 参考
-description: 全部端点的参数、响应与在线调试（由 OpenAPI 规范自动生成）
+title: 创作 API
+description: 面向图像、视频、音频、视觉模型与 DeepSeek 备用能力的公开接口
 ---
 
-本章节由 FocalAPI 的 OpenAPI 规范自动生成，覆盖全部公开端点。左侧导航按接口家族分组，每个端点页包含参数说明、响应结构与请求示例。
+本章只收录 FocalAPI 对外公开的创作接口，以及 DeepSeek 的备用对话接口。上游规范中的其他端点不属于本站产品范围，不会自动出现在导航或搜索中。
 
 ## 通用约定
 
 | 项目 | 值 |
 | --- | --- |
-| Base URL | `https://focalapi.com` |
+| Base URL | `https://api.focalapi.com` |
 | 认证 | `Authorization: Bearer YOUR_API_KEY` |
-| 内容类型 | `application/json`（文件上传为 `multipart/form-data`） |
+| 内容类型 | `application/json`；文件上传使用 `multipart/form-data` |
+| 模型发现 | `GET /v1/models` |
 
 ## 接口家族
 
-- **获取模型列表**：`GET /v1/models` 及 Gemini 兼容路径
-- **OpenAI 格式**：Chat Completions、Responses、Embeddings、音频、图像
-- **Claude 格式**：Messages
-- **Gemini 格式**：generateContent
-- **视频生成**：统一入口 + Sora 兼容 / Kling / 即梦原生格式
-- **其他**：Rerank、Moderations、Realtime
+- **可用模型**：查询当前 Key 实际可调用的模型
+- **图像创作**：生成和编辑图像
+- **视频创作**：统一视频任务，以及 Kling、即梦等创作模型的原生任务格式
+- **音频创作**：转写、翻译和语音合成
+- **Gemini 图像原生接口**：用于 Gemini 图像模型的 `generateContent`
+- **DeepSeek 对话（备用）**：仅用于提示词、脚本与轻量文本任务
 
 <Callout type="info">
-标记为「未实现」分组的端点（Files、Fine-tunes）当前返回 `501 endpoint_unavailable`，见[错误码](/docs/errors)。
-</Callout>
-
-<Callout type="warn">
-搜索接口 `POST /v1/alpha/search` 暂未收录进自动生成章节，用法见[搜索指南](/docs/guides/search)。
+请求前先查询模型列表。模型的可用性、支持参数、并发和价格以控制台模型广场为准。
 </Callout>

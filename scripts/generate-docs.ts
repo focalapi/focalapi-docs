@@ -8,20 +8,12 @@ const OUTPUT = './content/docs/api';
 // tag 前缀（规范中为中文，含 '/' 层级）→ ASCII 目录名 + 目录展示名
 // 注意：目录名必须用 ASCII，避免静态部署时 URL 编码路径在 nginx/Caddy/serve 下 404
 const groups: Record<string, { dir: string; title: string }> = {
-  获取模型列表: { dir: 'models', title: '获取模型列表' },
-  'OpenAI格式(Chat)': { dir: 'openai-chat', title: 'OpenAI 格式（Chat）' },
-  'OpenAI格式(Responses)': { dir: 'openai-responses', title: 'OpenAI 格式（Responses）' },
-  图片生成: { dir: 'images', title: '图片生成' },
-  视频生成: { dir: 'video', title: '视频生成' },
-  'Claude格式(Messages)': { dir: 'claude', title: 'Claude 格式（Messages）' },
-  Gemini格式: { dir: 'gemini', title: 'Gemini 格式' },
-  'OpenAI格式(Embeddings)': { dir: 'embeddings', title: 'OpenAI 格式（Embeddings）' },
-  '文本补全(Completions)': { dir: 'completions', title: '文本补全（Completions）' },
-  'OpenAI音频(Audio)': { dir: 'audio', title: 'OpenAI 音频（Audio）' },
-  '重排序(Rerank)': { dir: 'rerank', title: '重排序（Rerank）' },
-  Moderations: { dir: 'moderations', title: 'Moderations' },
-  Realtime: { dir: 'realtime', title: 'Realtime' },
-  未实现: { dir: 'not-implemented', title: '未实现（501）' },
+  获取模型列表: { dir: 'models', title: '可用模型' },
+  'OpenAI格式(Chat)': { dir: 'deepseek', title: 'DeepSeek 对话（备用）' },
+  图片生成: { dir: 'images', title: '图像创作' },
+  视频生成: { dir: 'video', title: '视频创作' },
+  'OpenAI音频(Audio)': { dir: 'audio', title: '音频创作' },
+  Gemini格式: { dir: 'gemini-image', title: 'Gemini 图像原生接口' },
 };
 
 function groupOf(tags: string[] | undefined) {

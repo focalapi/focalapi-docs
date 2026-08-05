@@ -9,9 +9,9 @@ description: 用模型原生兼容的接口调用 GPT Image、Seedream、Gemini 
 模型是否可调用取决于令牌分组和管理员的渠道配置；以 `GET /v1/models` 与控制台模型广场的实际结果为准。
 </Callout>
 
-## OpenAI Images 接口
+## 统一图像生成接口
 
-以下模型使用 `POST /v1/images/generations`；编辑图片时使用 `POST /v1/images/edits`。请求和响应与 OpenAI Images API 保持兼容。
+以下模型使用 `POST /v1/images/generations`；编辑图片时使用 `POST /v1/images/edits`。FocalAPI 会保留模型所需的创作参数语义，并统一返回图像结果。
 
 | 模型 ID | 产品名称 |
 | --- | --- |
@@ -24,7 +24,7 @@ description: 用模型原生兼容的接口调用 GPT Image、Seedream、Gemini 
 | `grok-imagine-image` | Grok Imagine |
 
 ```bash
-curl https://focalapi.com/v1/images/generations \
+curl https://api.focalapi.com/v1/images/generations \
   -H "Authorization: Bearer $FOCALAPI_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -48,7 +48,7 @@ curl https://focalapi.com/v1/images/generations \
 | `gemini-3.1-flash-lite-image-preview` | Nano Banana 2 Lite |
 
 ```bash
-curl 'https://focalapi.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent' \
+curl 'https://api.focalapi.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent' \
   -H "Authorization: Bearer $FOCALAPI_KEY" \
   -H "Content-Type: application/json" \
   -d '{

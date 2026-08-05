@@ -1,0 +1,33 @@
+---
+title: 音频创作
+description: 使用语音转写、翻译和文字转语音接口
+---
+
+FocalAPI 提供三个面向创作流程的音频入口：转写、翻译和语音合成。模型 ID、可用音色、文件大小与支持格式均以 `GET /v1/models` 和控制台模型广场为准。
+
+## 转写
+
+```bash
+curl https://api.focalapi.com/v1/audio/transcriptions \
+  -H "Authorization: Bearer $FOCALAPI_KEY" \
+  -F "model=<转写模型>" \
+  -F "file=@interview.mp3"
+```
+
+## 文字转语音
+
+```bash
+curl https://api.focalapi.com/v1/audio/speech \
+  -H "Authorization: Bearer $FOCALAPI_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "<语音模型>",
+    "voice": "<可用音色>",
+    "input": "欢迎来到 FocalAPI 创作工作流。"
+  }' \
+  --output narration.mp3
+```
+
+<Callout type="info">
+音频输出、音色与计费单位由所选模型决定。对长音频和批量生产，请先用一小段素材验证效果与单价。
+</Callout>

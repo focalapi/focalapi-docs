@@ -9,9 +9,9 @@ These image models run through the Comfy Cloud account pool. Clients do not need
 Availability depends on your token group and administrator channel configuration. `GET /v1/models` and the Model Marketplace are the source of truth.
 </Callout>
 
-## OpenAI Images API
+## Unified image generation API
 
-Use `POST /v1/images/generations` for generation and `POST /v1/images/edits` for editing. Both are compatible with the OpenAI Images API.
+Use `POST /v1/images/generations` for generation and `POST /v1/images/edits` for editing. FocalAPI preserves the creative parameters required by each model while returning a unified image result.
 
 | Model ID | Product |
 | --- | --- |
@@ -24,7 +24,7 @@ Use `POST /v1/images/generations` for generation and `POST /v1/images/edits` for
 | `grok-imagine-image` | Grok Imagine |
 
 ```bash
-curl https://focalapi.com/v1/images/generations \
+curl https://api.focalapi.com/v1/images/generations \
   -H "Authorization: Bearer $FOCALAPI_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -48,7 +48,7 @@ Use Gemini's native `generateContent` endpoint for the following models. To gene
 | `gemini-3.1-flash-lite-image-preview` | Nano Banana 2 Lite |
 
 ```bash
-curl 'https://focalapi.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent' \
+curl 'https://api.focalapi.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent' \
   -H "Authorization: Bearer $FOCALAPI_KEY" \
   -H "Content-Type: application/json" \
   -d '{

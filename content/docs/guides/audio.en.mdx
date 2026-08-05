@@ -1,0 +1,33 @@
+---
+title: Audio Creation
+description: Use transcription, translation, and text-to-speech APIs
+---
+
+FocalAPI provides three audio entry points for creative workflows: transcription, translation, and speech synthesis. Model IDs, voices, file limits, and supported formats are defined by `GET /v1/models` and the model catalog in the console.
+
+## Transcription
+
+```bash
+curl https://api.focalapi.com/v1/audio/transcriptions \
+  -H "Authorization: Bearer $FOCALAPI_KEY" \
+  -F "model=<transcription-model>" \
+  -F "file=@interview.mp3"
+```
+
+## Text to speech
+
+```bash
+curl https://api.focalapi.com/v1/audio/speech \
+  -H "Authorization: Bearer $FOCALAPI_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "<speech-model>",
+    "voice": "<available-voice>",
+    "input": "Welcome to the FocalAPI creative workflow."
+  }' \
+  --output narration.mp3
+```
+
+<Callout type="info">
+Audio outputs, available voices, and billing units are model-specific. Validate a short sample before producing long or batch audio.
+</Callout>

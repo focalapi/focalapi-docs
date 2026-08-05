@@ -1,53 +1,38 @@
 ---
-title: Image Generation
-description: OpenAI-compatible image generation and editing
+title: Image Creation
+description: Generate, edit, and call creative image models
 ---
 
-## Generate images
-
-`POST /v1/images/generations`, compatible with the OpenAI Images API:
+Use `POST /v1/images/generations` to generate images and `POST /v1/images/edits` to edit them. Supported sizes, reference images, quality levels, and output formats differ by model; use the model catalog and request validation as the source of truth.
 
 ```bash
-curl https://focalapi.com/v1/images/generations \
+curl https://api.focalapi.com/v1/images/generations \
   -H "Authorization: Bearer $FOCALAPI_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gpt-image-2",
-    "prompt": "A hillside city monorail at sunset, cyberpunk style",
+    "model": "doubao-seedream-5-0-pro-260628",
+    "prompt": "A futuristic sneaker poster with glass texture, clean studio lighting, blue and white palette",
     "size": "1024x1024",
     "n": 1
   }'
 ```
 
-The response contains image URLs or base64 data (depending on `response_format` and model support):
-
-```json
-{
-  "created": 1720000000,
-  "data": [{ "url": "https://..." }]
-}
-```
-
-## Edit images
-
-`POST /v1/images/edits`: upload a source image plus a prompt for inpainting/editing, sent as `multipart/form-data`.
-
-## Key parameters
+## Parameters
 
 | Parameter | Description |
 | --- | --- |
-| `model` | Image model name, from `/v1/models` |
-| `prompt` | Text prompt; describe concrete visual elements |
-| `size` | Resolution; allowed values vary by model (e.g. `1024x1024`, `2048x2048`, `2K`, `4K`) |
-| `n` | Number of images; server-capped, billed per image |
-| `quality` | Quality tier (some models), affects unit price |
+| `model` | Required. Use an image-model ID returned by `GET /v1/models`. |
+| `prompt` | Describe subject, composition, material, lighting, and style. |
+| `size` | Resolution or aspect ratio, depending on the model. |
+| `n` | Image count; billed by actual output count. |
+| `quality` | Use only when the model supports it. |
 
-## Billing note
-
-Images are billed by **count × resolution/quality factor** — larger `n` costs more. Test with a single image before batch runs.
+<Callout type="info">
+Creative models validate parameters according to their native capabilities. For native Gemini image fields, see [Comfy Cloud Image Models](/docs/guides/comfy-image-models).
+</Callout>
 
 <Cards>
-  <Card title="Comfy Cloud image models" href="/docs/guides/comfy-image-models" description="Native-compatible interfaces for GPT Image, Seedream, Gemini Image, Nano Banana and Grok" />
-  <Card title="Generation endpoint reference" href="/docs/api/images/createImage" />
-  <Card title="Billing rules" href="/docs/billing" />
+  <Card title="Comfy Cloud Image Models" href="/docs/guides/comfy-image-models" />
+  <Card title="Image API Reference" href="/docs/api/images/createImage" />
+  <Card title="Billing and Quota" href="/docs/billing" />
 </Cards>

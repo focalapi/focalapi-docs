@@ -1,68 +1,35 @@
 ---
-title: 文本对话
-description: OpenAI、Claude、Gemini 三种对话格式的接入方式与选型建议
+title: DeepSeek 对话（备用）
+description: 用 DeepSeek 完成提示词、脚本梳理和轻量文本任务
 ---
 
-FocalAPI 同时支持三种主流对话 API 格式，同一个密钥通用。**优先推荐 OpenAI 格式**——生态最广、SDK 最全。
+DeepSeek 是 FocalAPI 唯一对外展示的通用文本备用能力。它适合辅助创作：整理分镜、扩写提示词、生成旁白草稿或提炼素材说明；不是产品主线。
 
-## OpenAI 格式（推荐）
+## 调用方式
 
-`POST /v1/chat/completions`，兼容 OpenAI SDK 与绝大多数第三方客户端：
+先用 `GET /v1/models` 确认你的 Key 可用的 DeepSeek 模型 ID，然后通过统一对话入口调用：
 
 ```bash
-curl https://focalapi.com/v1/chat/completions \
+curl https://api.focalapi.com/v1/chat/completions \
   -H "Authorization: Bearer $FOCALAPI_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gpt-4o-mini",
+    "model": "deepseek-chat",
     "messages": [
-      {"role": "system", "content": "你是简洁的助手"},
-      {"role": "user", "content": "用一句话解释量子计算"}
-    ],
-    "temperature": 0.7,
-    "stream": false
+      {"role": "user", "content": "把这段产品描述整理成 6 镜头的短视频分镜"}
+    ]
   }'
 ```
 
-另支持 OpenAI 新一代 `POST /v1/responses` 接口（含 `/v1/responses/compact`），适合使用 Responses API 生态的应用。
+将 `deepseek-chat` 替换为模型列表中的实际 ID。请求支持 `stream: true`，适合长提示词或脚本草稿的渐进输出。
 
-## Claude 格式
+## 使用边界
 
-`POST /v1/messages`，兼容 Anthropic Messages API，可直接对接 Claude Code 等 Claude 生态工具：
-
-```bash
-curl https://focalapi.com/v1/messages \
-  -H "Authorization: Bearer $FOCALAPI_KEY" \
-  -H "Content-Type: application/json" \
-  -H "anthropic-version: 2023-06-01" \
-  -d '{
-    "model": "claude-sonnet-4-5",
-    "max_tokens": 1024,
-    "messages": [{"role": "user", "content": "你好"}]
-  }'
-```
-
-## Gemini 格式
-
-`POST /v1beta/models/{model}:generateContent`，兼容 Google Gemini API：
-
-```bash
-curl "https://focalapi.com/v1beta/models/gemini-2.5-flash:generateContent" \
-  -H "Authorization: Bearer $FOCALAPI_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "contents": [{"parts": [{"text": "你好"}]}]
-  }'
-```
-
-## 通用注意事项
-
-- **模型名**：以 `GET /v1/models` 返回的 `id` 为准
-- **max_tokens**：必填上限（各格式均有服务端最大值），超出会被拒绝或截断
-- **流式**：三种格式都支持流式响应，OpenAI 为 SSE `data:` 帧，Claude/Gemini 各随其协议
-- **多模态输入**：图像/音频输入随模型能力而定，请求格式与官方一致
+- 将对话结果作为创作流程中的辅助输入，而非模型能力目录
+- 图像、视频和音频任务优先使用对应的创作接口
+- 不要假设其他通用文本、编码或聊天模型可用
 
 <Cards>
-  <Card title="对话接口参数详情" href="/docs/api/openai-chat/createChatCompletion" />
-  <Card title="Claude Messages 参数详情" href="/docs/api/claude/createMessage" />
+  <Card title="图像创作" href="/docs/guides/images" />
+  <Card title="视频任务" href="/docs/guides/video-tasks" />
 </Cards>

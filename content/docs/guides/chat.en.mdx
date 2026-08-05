@@ -1,68 +1,35 @@
 ---
-title: Chat (Text)
-description: OpenAI, Claude and Gemini chat formats — how to choose and integrate
+title: DeepSeek Chat (Fallback)
+description: Use DeepSeek for prompts, outlines, and lightweight text tasks
 ---
 
-FocalAPI supports all three major chat API formats with the same key. **OpenAI format is recommended** — widest ecosystem, most SDKs.
+DeepSeek is FocalAPI's only user-facing general-text fallback. Use it to support creative work: shape prompts, organize storyboards, draft narration, or summarize assets. It is not the product's primary surface.
 
-## OpenAI format (recommended)
+## Request
 
-`POST /v1/chat/completions`, compatible with the OpenAI SDK and most third-party clients:
+First call `GET /v1/models` to find the DeepSeek model IDs available to your key, then use the unified chat endpoint:
 
 ```bash
-curl https://focalapi.com/v1/chat/completions \
+curl https://api.focalapi.com/v1/chat/completions \
   -H "Authorization: Bearer $FOCALAPI_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gpt-4o-mini",
+    "model": "deepseek-chat",
     "messages": [
-      {"role": "system", "content": "You are a concise assistant"},
-      {"role": "user", "content": "Explain quantum computing in one sentence"}
-    ],
-    "temperature": 0.7,
-    "stream": false
+      {"role": "user", "content": "Turn this product description into a six-shot video storyboard"}
+    ]
   }'
 ```
 
-The newer OpenAI `POST /v1/responses` endpoint is also available (including `/v1/responses/compact`).
+Replace `deepseek-chat` with the actual ID returned for your key. Requests support `stream: true` for long prompts and script drafts.
 
-## Claude format
+## Boundary
 
-`POST /v1/messages`, compatible with the Anthropic Messages API — works with Claude Code and other Claude-ecosystem tools:
-
-```bash
-curl https://focalapi.com/v1/messages \
-  -H "Authorization: Bearer $FOCALAPI_KEY" \
-  -H "Content-Type: application/json" \
-  -H "anthropic-version: 2023-06-01" \
-  -d '{
-    "model": "claude-sonnet-4-5",
-    "max_tokens": 1024,
-    "messages": [{"role": "user", "content": "Hello"}]
-  }'
-```
-
-## Gemini format
-
-`POST /v1beta/models/{model}:generateContent`, compatible with the Google Gemini API:
-
-```bash
-curl "https://focalapi.com/v1beta/models/gemini-2.5-flash:generateContent" \
-  -H "Authorization: Bearer $FOCALAPI_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "contents": [{"parts": [{"text": "Hello"}]}]
-  }'
-```
-
-## Notes
-
-- **Model names**: use the `id` values from `GET /v1/models`
-- **max_tokens**: subject to server-side caps per format; out-of-range values are rejected
-- **Streaming**: all three formats support streaming (SSE for OpenAI; native protocols for Claude/Gemini)
-- **Multimodal input**: image/audio input depends on model capability; request shapes mirror the official APIs
+- Treat chat output as a supporting input to a creative workflow, not as the product catalog.
+- Use the dedicated creation APIs for image, video, and audio work.
+- Do not assume other general chat, coding, or text models are available.
 
 <Cards>
-  <Card title="Chat endpoint reference" href="/docs/api/openai-chat/createChatCompletion" />
-  <Card title="Claude Messages reference" href="/docs/api/claude/createMessage" />
+  <Card title="Image Creation" href="/docs/guides/images" />
+  <Card title="Video Tasks" href="/docs/guides/video-tasks" />
 </Cards>
