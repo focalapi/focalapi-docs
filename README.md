@@ -73,7 +73,7 @@ bun run build          # 3. 验证构建
 
 脚本流程：buildx 构建 `linux/amd64` 镜像 → 导出压缩 → 上传到服务器 `/tmp` → 远端 `remote-deploy-docs.sh` 导入镜像、并入 `focalapi-llm` compose 项目（`docs` 服务，宿主端口 `${DOCS_PORT:-3001}`）→ 健康检查 `/zh/docs`。
 
-- compose 服务定义在 focalapi-llm 仓 `deploy/focalapi-llm/docker-compose.prod.yml`；**首次发布需先跑过一次 app 部署**（服务器 `/opt/focalapi-llm/current` 里的 compose 含 docs 服务）
+- compose 服务定义在 focalapi-llm 仓 `deploy/focalapi-llm/docker-compose.prod.yml`；**首次发布需先跑过一次 app 部署**（该次发布会写入含 docs 服务的 compose，随后本脚本导入镜像并启动 docs）
 - 公网访问：反向代理站点 `docs.focalapi.com → 127.0.0.1:3001` + DNS A 记录指向服务器；Caddy 配置示例见 focalapi-llm 部署 README
 - 主站经原生设置 `general_setting.docs_link` 链接到文档站（默认 `https://docs.focalapi.com`；存量数据库需在管理后台改一次）
 - 回滚：`docker tag focalapi-docs:<旧版本> focalapi-docs:latest` 后 `up -d docs`
