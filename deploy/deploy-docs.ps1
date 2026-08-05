@@ -5,6 +5,7 @@ param(
   [int]$Port = 22,
   [string]$IdentityFile = "$HOME/.ssh/focalapi_ed25519",
   [string]$Platform = 'linux/amd64',
+  [string]$ImageRegistry = 'docker.m.daocloud.io/',
   [switch]$KeepLocalBuildArtifacts
 )
 
@@ -14,6 +15,10 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+
+if ($ImageRegistry -and -not $ImageRegistry.EndsWith('/')) {
+  $ImageRegistry += '/'
+}
 
 $scriptDirectory = $PSScriptRoot
 $repositoryRoot = (Resolve-Path (Join-Path $scriptDirectory '..')).Path
@@ -79,6 +84,7 @@ try {
       '--platform' $Platform `
       '--load' `
       '--tag' $image `
+      '--build-arg' "IMAGE_REGISTRY=$ImageRegistry" `
       '--file' 'Dockerfile' `
       '.'
     if ($LASTEXITCODE -ne 0) {
@@ -139,7 +145,16 @@ try {
   if (-not $KeepLocalBuildArtifacts) {
     # 镜像已上传到生产机；默认移除镜像和 Buildx 缓存，避免 Docker Desktop
     # 在 C: 盘持续积累构建层。排查构建问题时才显式传 -KeepLocalBuildArtifacts。
-    & docker image rm --force $image *> $null
-    & docker builder prune --all --force *> $null
+    $previousErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    try {
+      & docker image inspect $image *> $null
+      if ($LASTEXITCODE -eq 0) {
+        & docker image rm --force $image *> $null
+      }
+      & docker builder prune --all --force *> $null
+    } finally {
+      $ErrorActionPreference = $previousErrorActionPreference
+    }
   }
 }

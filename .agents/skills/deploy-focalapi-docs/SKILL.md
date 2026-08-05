@@ -32,7 +32,7 @@ Deploy the static Fumadocs site to the same production host as `focalapi-llm`. T
    .\deploy\deploy-docs.ps1
    ```
 
-   The script creates a versioned `focalapi-docs` image, uploads it to the configured server, starts `docs`, and checks `http://127.0.0.1:${DOCS_PORT:-3001}/zh/docs` remotely.
+   The script pulls base images through `docker.m.daocloud.io/` by default (override with `-ImageRegistry`), creates a versioned `focalapi-docs` image, uploads it to the configured server, starts `docs`, and checks `http://127.0.0.1:${DOCS_PORT:-3001}/zh/docs` remotely.
 6. Verify externally only after the host reverse proxy and DNS map `docs.focalapi.com` to `127.0.0.1:3001`. Do not change DNS or a shared reverse-proxy configuration without explicit authorization.
 
 ## Safety and cleanup

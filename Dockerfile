@@ -2,7 +2,8 @@
 # 注意：base 镜像从 Docker Hub 拉取；本机网络不通时先经镜像站拉取并 retag
 # （docker pull docker.m.daocloud.io/oven/bun:1 && docker tag docker.m.daocloud.io/oven/bun:1 oven/bun:1）
 
-FROM oven/bun:1 AS build
+ARG IMAGE_REGISTRY=
+FROM ${IMAGE_REGISTRY}oven/bun:1 AS build
 WORKDIR /app
 
 # 依赖层（锁文件不变即命中缓存）
@@ -13,7 +14,7 @@ RUN bun install --frozen-lockfile
 COPY . .
 RUN bun run build
 
-FROM caddy:2-alpine
+FROM ${IMAGE_REGISTRY}caddy:2-alpine
 COPY deploy/Caddyfile /etc/caddy/Caddyfile
 COPY --from=build /app/out /srv
 EXPOSE 80
