@@ -12,8 +12,8 @@ curl https://api.focalapi.com/v1/images/generations \
   -d '{
     "model": "doubao-seedream-5-0-pro-260628",
     "prompt": "玻璃质感的未来运动鞋海报，干净棚拍，蓝白配色",
-    "size": "1024x1024",
-    "n": 1
+    "size": "2k",
+    "watermark": false
   }'
 ```
 
@@ -23,8 +23,7 @@ curl https://api.focalapi.com/v1/images/generations \
 | --- | --- |
 | `model` | 必填；使用 `GET /v1/models` 返回的图像模型 ID |
 | `prompt` | 描述主体、构图、材质、光线与风格 |
-| `size` | 分辨率或宽高比；支持值取决于模型 |
-| `n` | 生成张数；按实际张数计费 |
+| `size` | 分辨率档位或宽高比；支持值取决于模型（Seedream 使用官方档位如 `1k`/`2k`） |
 | `quality` | 仅在模型支持时使用 |
 
 <Callout type="info">

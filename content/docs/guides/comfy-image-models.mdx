@@ -16,6 +16,7 @@ description: 用模型原生兼容的接口调用 GPT Image、Seedream、Gemini 
 | 模型 ID | 产品名称 |
 | --- | --- |
 | `gpt-image-2` | GPT Image 2 |
+| `doubao-seedream-4-0-250828` | Seedream 4.0 |
 | `doubao-seedream-4-5-251128` | Seedream 4.5 |
 | `doubao-seedream-5-0-pro-260628` | Seedream 5.0 Pro |
 | `doubao-seedream-5-0-lite-260128` | Seedream 5.0 Lite |
@@ -30,16 +31,16 @@ curl https://api.focalapi.com/v1/images/generations \
   -d '{
     "model": "doubao-seedream-5-0-pro-260628",
     "prompt": "晨雾中的海边灯塔，电影感光影",
-    "size": "1024x1024",
-    "n": 1
+    "size": "2k",
+    "watermark": false
   }'
 ```
 
-`gpt-image-2` 支持 `low`、`medium`、`high` 三档 `quality`，并支持 `background` 与单图 `mask` 编辑。其余模型支持的尺寸、参考图与输出张数不同；提交前请以接口返回的校验结果为准。
+`gpt-image-2` 支持 `low`、`medium`、`high` 三档 `quality`，并支持 `background` 与单图 `mask` 编辑。Seedream 各模型支持的尺寸档位不同（例如 5.0 Pro 为 `1k`/`1.5k`/`2k`）；提交前以接口返回的校验结果为准，超范围返回 400 并列出该模型支持的档位。
 
 ## Gemini 原生接口
 
-以下模型使用 Gemini 的原生 `generateContent` 接口。生成图像时，`generationConfig.responseModalities` 必须只包含 `IMAGE`。
+以下模型使用 Gemini 的原生 `generateContent` 接口。生成图像时，`generationConfig.responseModalities` 推荐 `["IMAGE", "TEXT"]`（`"IMAGE"` 亦可）；带上 `TEXT` 时，问候、问答等非图像类提示词更可能被模型转换成图像输出。
 
 | 模型 ID | 产品名称 |
 | --- | --- |
@@ -54,12 +55,15 @@ curl 'https://api.focalapi.com/v1beta/models/gemini-3.1-flash-image-preview:gene
   -d '{
     "contents": [{"parts": [{"text": "A clean product illustration of a blue ceramic mug"}]}],
     "generationConfig": {
-      "responseModalities": ["IMAGE"]
+      "responseModalities": ["IMAGE", "TEXT"],
+      "responseFormat": {
+        "image": {"aspectRatio": "1:1", "imageSize": "1K"}
+      }
     }
   }'
 ```
 
-输出图片在响应候选项的 `inlineData` 中返回。需要指定构图或清晰度时，按 Gemini 原生字段使用 `aspectRatio` 与 `imageSize`；FocalAPI 会按模型能力校验参数。
+输出图片在响应候选项的 `inlineData` 中返回。需要指定构图或清晰度时，按 Gemini 原生字段在 `generationConfig.responseFormat.image` 中使用 `aspectRatio` 与 `imageSize`（`imageConfig` 与顶层 `aspectRatio` 不被接受）；FocalAPI 会按模型能力校验参数。
 
 ## 计费与重试
 

@@ -24,7 +24,7 @@ curl https://api.focalapi.com/v1/video/generations \
   -H "Authorization: Bearer $FOCALAPI_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "doubao-seedance-1-0-pro",
+    "model": "doubao-seedance-2-0-mini-260615",
     "prompt": "镜头缓慢推近，雨滴落在车窗上",
     "duration": 5,
     "size": "1280x720"
@@ -72,8 +72,11 @@ curl https://api.focalapi.com/v1/video/generations/cst_xxxxxxxx \
 | 格式 | 创建 | 查询 |
 | --- | --- | --- |
 | Sora 兼容 | `POST /v1/videos` | `GET /v1/videos/{task_id}` |
+| Ark/BytePlus 原生 | `POST /api/v3/contents/generations/tasks` | `GET /api/v3/contents/generations/tasks/{id}` |
 | Kling | `POST /kling/v1/videos/text2video`<br/>`POST /kling/v1/videos/image2video` | `GET /kling/v1/videos/text2video/{task_id}`<br/>`GET /kling/v1/videos/image2video/{task_id}` |
 | 即梦 | `POST /jimeng/` | 随响应约定 |
+
+Seedance 2.0 系列支持 Ark/BytePlus 原生格式，请求体与响应结构（含 `usage.completion_tokens` 计费口径）与火山方舟官方一致，可直接迁移：
 
 <Cards>
   <Card title="视频接口参数详情" href="/docs/api/video/createVideoGeneration" />

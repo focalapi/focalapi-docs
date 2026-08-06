@@ -327,12 +327,12 @@
     },
     "/v1/images/generations": {
       "post": {
-        "summary": "生成图像(qwen-image)",
+        "summary": "生成图像",
         "deprecated": false,
-        "description": " 百炼qwen-image系列图片生成",
+        "description": "调用图像生成模型（Seedream 系列、GPT Image、Grok Imagine、Gemini 图像等）。使用模型官方参数集，请求体为 OpenAI 兼容格式；Seedream 模型请使用官方尺寸档位（如 1k/2k）。",
         "operationId": "createImage",
         "tags": [
-          "图片生成/Qwen千问"
+          "图片生成/图像模型"
         ],
         "parameters": [],
         "requestBody": {
@@ -398,25 +398,10 @@
                 ]
               },
               "example": {
-                "model": "qwen-image-plus",
-                "input": {
-                  "messages": [
-                    {
-                      "role": "user",
-                      "content": [
-                        {
-                          "text": "一副典雅庄重的对联悬挂于厅堂之中，房间是个安静古典的中式布置，桌子上放着一些青花瓷，对联上左书“义本生知人机同道善思新”，右书“通云赋智乾坤启数高志远”， 横批“智启通义”，字体飘逸，在中间挂着一幅中国风的画作，内容是岳阳楼。"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                "parameters": {
-                  "negative_prompt": "",
-                  "prompt_extend": true,
-                  "watermark": false,
-                  "size": "1328*1328"
-                }
+                "model": "doubao-seedream-5-0-pro-260628",
+                "prompt": "晨雾中的海边灯塔，电影感光影",
+                "size": "2k",
+                "watermark": false
               }
             }
           }
@@ -443,12 +428,12 @@
     },
     "/v1/images/edits": {
       "post": {
-        "summary": "编辑图像(qwen-image-edit)",
+        "summary": "编辑图像",
         "deprecated": false,
-        "description": " 百炼qwen-image系列图片生成",
+        "description": "基于输入图片编辑图像（如 GPT Image 的背景替换与蒙版编辑）。",
         "operationId": "createImage",
         "tags": [
-          "图片生成/Qwen千问"
+          "图片生成/图像模型"
         ],
         "parameters": [],
         "requestBody": {
@@ -519,7 +504,13 @@
                   "input"
                 ]
               },
-              "example": "{\n    \"model\": \"qwen-image-edit-plus\",\n    \"input\": {\n        \"messages\": [\n            {\n                \"role\": \"user\",\n                \"content\": [\n                    {\n                        \"image\": \"https://help-static-aliyun-doc.aliyuncs.com/file-manage-files/zh-CN/20250925/fpakfo/image36.webp\"\n                    },\n                    {\n                        \"text\": \"生成一张符合深度图的图像，遵循以下描述：一辆红色的破旧的自行车停在一条泥泞的小路上，背景是茂密的原始森林\"\n                    }\n                ]\n            }\n        ]\n    },\n    \"parameters\": {\n        \"n\": 2,\n        \"negative_prompt\": \" \",\n        \"prompt_extend\": true,\n        \"watermark\": false\n    }"
+              "example": {
+                "model": "gpt-image-2",
+                "prompt": "将背景替换为日落时分的海滩",
+                "image": "https://example.com/input.png",
+                "background": "transparent",
+                "quality": "high"
+              }
             }
           }
         },
@@ -1180,11 +1171,10 @@
                 "$ref": "#/components/schemas/VideoRequest"
               },
               "example": {
-                "model": "kling-v1",
-                "prompt": "宇航员在月球上漫步",
+                "model": "doubao-seedance-2-0-mini-260615",
+                "prompt": "镜头缓慢推进雨中的城市霓虹街道",
                 "duration": 5,
-                "width": 1280,
-                "height": 720
+                "size": "1280x720"
               }
             }
           },
@@ -1421,19 +1411,21 @@
                     "role": "user",
                     "parts": [
                       {
-                        "text": "draw a cat"
+                        "text": "draw a red apple on a white table, product photo"
                       }
                     ]
                   }
                 ],
                 "generationConfig": {
                   "responseModalities": [
-                    "TEXT",
-                    "IMAGE"
+                    "IMAGE",
+                    "TEXT"
                   ],
-                  "imageConfig": {
-                    "aspectRatio": "16:9",
-                    "imageSize": "4K"
+                  "responseFormat": {
+                    "image": {
+                      "aspectRatio": "1:1",
+                      "imageSize": "1K"
+                    }
                   }
                 }
               }

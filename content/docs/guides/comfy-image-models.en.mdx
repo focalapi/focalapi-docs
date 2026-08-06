@@ -16,6 +16,7 @@ Use `POST /v1/images/generations` for generation and `POST /v1/images/edits` for
 | Model ID | Product |
 | --- | --- |
 | `gpt-image-2` | GPT Image 2 |
+| `doubao-seedream-4-0-250828` | Seedream 4.0 |
 | `doubao-seedream-4-5-251128` | Seedream 4.5 |
 | `doubao-seedream-5-0-pro-260628` | Seedream 5.0 Pro |
 | `doubao-seedream-5-0-lite-260128` | Seedream 5.0 Lite |
@@ -30,8 +31,8 @@ curl https://api.focalapi.com/v1/images/generations \
   -d '{
     "model": "doubao-seedream-5-0-pro-260628",
     "prompt": "A lighthouse by the sea in morning fog, cinematic lighting",
-    "size": "1024x1024",
-    "n": 1
+    "size": "2k",
+    "watermark": false
   }'
 ```
 
@@ -54,7 +55,10 @@ curl 'https://api.focalapi.com/v1beta/models/gemini-3.1-flash-image-preview:gene
   -d '{
     "contents": [{"parts": [{"text": "A clean product illustration of a blue ceramic mug"}]}],
     "generationConfig": {
-      "responseModalities": ["IMAGE"]
+      "responseModalities": ["IMAGE", "TEXT"],
+      "responseFormat": {
+        "image": {"aspectRatio": "1:1", "imageSize": "1K"}
+      }
     }
   }'
 ```

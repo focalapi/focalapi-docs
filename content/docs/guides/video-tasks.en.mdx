@@ -24,7 +24,7 @@ curl https://api.focalapi.com/v1/video/generations \
   -H "Authorization: Bearer $FOCALAPI_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "doubao-seedance-1-0-pro",
+    "model": "doubao-seedance-2-0-mini-260615",
     "prompt": "Slow push-in shot, raindrops on a car window",
     "duration": 5,
     "size": "1280x720"
@@ -72,6 +72,7 @@ Besides the unified endpoint, three native formats are available, with fields al
 | Format | Create | Query |
 | --- | --- | --- |
 | Sora-compatible | `POST /v1/videos` | `GET /v1/videos/{task_id}` |
+| Ark/BytePlus native | `POST /api/v3/contents/generations/tasks` | `GET /api/v3/contents/generations/tasks/{id}` |
 | Kling | `POST /kling/v1/videos/text2video`<br/>`POST /kling/v1/videos/image2video` | `GET /kling/v1/videos/text2video/{task_id}`<br/>`GET /kling/v1/videos/image2video/{task_id}` |
 | Jimeng | `POST /jimeng/` | per response convention |
 
