@@ -13,6 +13,8 @@ const publicCreativeOperations: Record<string, readonly string[]> = {
   '/v1/chat/completions': ['post'],
   '/v1/images/generations': ['post'],
   '/v1/images/edits': ['post'],
+  '/api/v3/images/generations': ['post'],
+  '/api/v3/contents/generations/tasks': ['post'],
   '/v1/videos': ['post'],
   '/v1/videos/{task_id}': ['get'],
   '/v1/videos/{task_id}/content': ['get'],

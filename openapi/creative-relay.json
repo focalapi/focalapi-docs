@@ -454,6 +454,107 @@
         ]
       }
     },
+    "/api/v3/images/generations": {
+      "post": {
+        "summary": "生成图像（ark 原生端点）",
+        "deprecated": false,
+        "description": "ark/BytePlus 官方路径 /api/v3/images/generations——ark 用户仅需更换 base URL 与 key 即可无缝迁移。请求体与响应结构与官方一致。",
+        "operationId": "createImage",
+        "tags": [
+          "图片生成/图像模型"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "model": {
+                    "type": "string"
+                  },
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "messages": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "role": {
+                              "type": "string"
+                            },
+                            "content": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "text": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "required": [
+                      "messages"
+                    ]
+                  },
+                  "parameters": {
+                    "type": "object",
+                    "properties": {
+                      "negative_prompt": {
+                        "type": "string"
+                      },
+                      "prompt_extend": {
+                        "type": "boolean"
+                      },
+                      "watermark": {
+                        "type": "boolean"
+                      },
+                      "size": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "model",
+                  "input"
+                ]
+              },
+              "example": {
+                "model": "doubao-seedream-5-0-pro-260628",
+                "prompt": "晨雾中的海边灯塔，电影感光影",
+                "size": "2k",
+                "watermark": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功生成图像",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImageResponse"
+                }
+              }
+            },
+            "headers": {}
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/v1/videos": {
       "post": {
         "summary": "创建视频任务",
