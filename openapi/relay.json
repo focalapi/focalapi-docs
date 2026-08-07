@@ -398,7 +398,7 @@
                 ]
               },
               "example": {
-                "model": "doubao-seedream-5-0-pro-260628",
+                "model": "dola-seedream-5-0-pro-260628",
                 "prompt": "晨雾中的海边灯塔，电影感光影",
                 "size": "2k",
                 "watermark": false
@@ -1171,7 +1171,7 @@
                 "$ref": "#/components/schemas/VideoRequest"
               },
               "example": {
-                "model": "doubao-seedance-2-0-mini-260615",
+                "model": "dreamina-seedance-2-0-mini-260615",
                 "prompt": "镜头缓慢推进雨中的城市霓虹街道",
                 "duration": 5,
                 "size": "1280x720"
@@ -2371,7 +2371,7 @@
                 ]
               },
               "example": {
-                "model": "doubao-seedream-5-0-pro-260628",
+                "model": "dola-seedream-5-0-pro-260628",
                 "prompt": "晨雾中的海边灯塔，电影感光影",
                 "size": "2k",
                 "watermark": false

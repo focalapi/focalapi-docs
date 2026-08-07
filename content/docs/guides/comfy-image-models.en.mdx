@@ -16,10 +16,10 @@ Use `POST /v1/images/generations` for generation and `POST /v1/images/edits` for
 | Model ID | Product |
 | --- | --- |
 | `gpt-image-2` | GPT Image 2 |
-| `doubao-seedream-4-0-250828` | Seedream 4.0 |
-| `doubao-seedream-4-5-251128` | Seedream 4.5 |
-| `doubao-seedream-5-0-pro-260628` | Seedream 5.0 Pro |
-| `doubao-seedream-5-0-lite-260128` | Seedream 5.0 Lite |
+| `seedream-4-0-250828` | Seedream 4.0 |
+| `seedream-4-5-251128` | Seedream 4.5 |
+| `dola-seedream-5-0-pro-260628` | Dola Seedream 5.0 Pro |
+| `seedream-5-0-260128` | Seedream 5.0（also supports `seedream-5-0-lite-260128`） |
 | `grok-imagine-image-quality` | Grok Imagine Quality |
 | `grok-imagine-image-pro` | Grok Imagine Pro |
 | `grok-imagine-image` | Grok Imagine |
@@ -29,7 +29,7 @@ curl https://api.focalapi.com/v1/images/generations \
   -H "Authorization: Bearer $FOCALAPI_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "doubao-seedream-5-0-pro-260628",
+    "model": "dola-seedream-5-0-pro-260628",
     "prompt": "A lighthouse by the sea in morning fog, cinematic lighting",
     "size": "2k",
     "watermark": false
