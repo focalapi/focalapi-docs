@@ -1,88 +1,45 @@
 ---
 name: deploy-focalapi-docs
-description: Build, release, deploy, roll back, and verify the FocalAPI static documentation site. Use when changing focalapi-docs content, OpenAPI reference pages, Docker deployment files, or the production docs service.
+description: Deploy, roll back, and verify the FocalAPI static documentation site. Use when the user explicitly asks to publish, deploy, release, or verify focalapi-docs in production.
 ---
 
 # Deploy FocalAPI Docs
 
-Deploy the static Fumadocs site to the same production host as `focalapi-llm`. The local Windows machine builds the `linux/amd64` image; the server only imports and runs it.
+Deploy only after the user explicitly authorizes production work. The current path is server-side image construction through `deploy/deploy-docs-server.sh`; do not restore the retired local Docker workflow.
 
-## Release workflow
+## Before deployment
 
-1. Work from the `focalapi-docs` repository root and inspect `git status --short`. Do not deploy unrelated or unreviewed changes.
-2. When the upstream API contract changed, run:
+1. Work from `D:\hezh\Gitee\focalapi-docs`; inspect `git status --short`, `git diff --check`, and the target commit. Keep unrelated changes out of the release.
+2. When the platform OpenAPI contract changed, regenerate the API reference before validating:
 
    ```powershell
    bun run sync:openapi D:/hezh/Gitee/focalapi-llm
    bun run gen:api
    ```
 
-   Do not manually edit generated files under `content/docs/api/`.
-3. Validate the release before deploying:
+   Do not hand-edit generated files under `content/docs/api/`. Keep the change within `DOCUMENTATION_SCOPE.md` and `publicCreativeOperations`.
+3. Validate the docs release:
 
    ```powershell
    bun run types:check
    bun run build
    ```
 
-4. For the first release, ensure the target server's deployed `focalapi-llm` compose file already contains the `docs` service from `deploy/focalapi-llm/docker-compose.prod.yml`. Deploy that application configuration first if it is missing.
-5. Build, upload, import, start, and health-check the docs service:
+4. Commit and push the exact release commit. The deployment script rejects commits absent from an `origin` remote branch.
 
-   ```powershell
-   .\deploy\deploy-docs.ps1
-   ```
+## Release
 
-   The script pulls base images through `docker.m.daocloud.io/` by default (override with `-ImageRegistry`), creates a versioned `focalapi-docs` image, uploads it to the configured server, starts `docs`, and checks `http://127.0.0.1:${DOCS_PORT:-3001}/zh/docs` remotely.
-6. Verify externally only after the host reverse proxy and DNS map `docs.focalapi.com` to `127.0.0.1:3001`. Do not change DNS or a shared reverse-proxy configuration without explicit authorization.
+```bash
+./deploy/deploy-docs-server.sh [commit]
+```
 
-## Safety and cleanup
+The script archives and uploads source, builds `focalapi-docs:<version>` on the server, updates the docs service in the current FocalAPI compose deployment, and checks `http://127.0.0.1:3001/zh/docs` remotely. Use its exit status as the deployment result.
 
-- The deployment script removes its temporary archives, release image, and Buildx cache by default to avoid exhausting Docker Desktop storage on `C:`. Use `-KeepLocalBuildArtifacts` only while diagnosing a build.
-- The service is static-only and should expose container port `80` through `${DOCS_PORT:-3001}`; do not add a server-side Node process.
-- Confirm `docker compose ... ps docs` and the health endpoint after a release. Inspect `docker compose ... logs --tail 100 docs` on failure.
-- To roll back, retag a previously imported `focalapi-docs:<version>` as `focalapi-docs:latest`, then run `docker compose ... up -d docs` with the production compose file.
+Do not change DNS, shared reverse-proxy configuration, production environment files, or unrelated compose services without separate authorization.
 
-[TODO: Add content here. See examples in existing skills:
-- Code samples for technical skills
-- Decision trees for complex workflows
-- Concrete examples with realistic user requests
-- References to scripts/templates/references as needed]
+## Verify and report
 
-## Resources (optional)
-
-Create only the resource directories this skill actually needs. Delete this section if no resources are required.
-
-### scripts/
-Executable code (Python/Bash/etc.) that can be run directly to perform specific operations.
-
-**Examples from other skills:**
-- PDF skill: `fill_fillable_fields.py`, `extract_form_field_info.py` - utilities for PDF manipulation
-- DOCX skill: `document.py`, `utilities.py` - Python modules for document processing
-
-**Appropriate for:** Python scripts, shell scripts, or any executable code that performs automation, data processing, or specific operations.
-
-**Note:** Scripts may be executed without loading into context, but can still be read by Codex for patching or environment adjustments.
-
-### references/
-Documentation and reference material intended to be loaded into context to inform Codex's process and thinking.
-
-**Examples from other skills:**
-- Product management: `communication.md`, `context_building.md` - detailed workflow guides
-- BigQuery: API reference documentation and query examples
-- Finance: Schema documentation, company policies
-
-**Appropriate for:** In-depth documentation, API references, database schemas, comprehensive guides, or any detailed information that Codex should reference while working.
-
-### assets/
-Files not intended to be loaded into context, but rather used within the output Codex produces.
-
-**Examples from other skills:**
-- Brand styling: PowerPoint template files (.pptx), logo files
-- Frontend builder: HTML/React boilerplate project directories
-- Typography: Font files (.ttf, .woff2)
-
-**Appropriate for:** Templates, boilerplate code, document templates, images, icons, fonts, or any files meant to be copied or used in the final output.
-
----
-
-**Not every skill requires all three types of resources.**
+- Confirm the script's health check passed and the target docs page is reachable externally when that authorization was given.
+- Verify both Chinese and English pages, changed API references, and search results when relevant.
+- On failure, inspect the docs service logs through the production compose file; do not retry blindly.
+- Report the commit, validation commands, release result, health result, and any skipped external verification.
