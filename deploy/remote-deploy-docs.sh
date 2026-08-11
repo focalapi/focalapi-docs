@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# FocalAPI 文档站服务器端安装：导入镜像 -> 标记 latest -> 并入 focalapi-llm compose 项目
-# 参数: <image_archive_path> <version>
+# Install FocalAPI Docs on the server: import the image, tag latest, and join the focalapi-llm Compose project.
+# Arguments: <image_archive_path> <version>
 set -Eeuo pipefail
 
 image_archive_path="${1:-}"
@@ -45,7 +45,7 @@ echo "启动/更新 docs 服务..."
 docker compose -p focalapi-llm --env-file "${env_file}" \
   -f "${compose_file}" up -d docs
 
-# 健康检查：/zh/docs 返回且包含站点标识
+# Health check: /zh/docs must respond and contain the site identifier.
 docs_port="$(grep -E '^DOCS_PORT=' "${env_file}" 2>/dev/null | cut -d= -f2 || true)"
 docs_port="${docs_port:-3001}"
 healthy=0

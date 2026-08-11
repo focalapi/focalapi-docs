@@ -5,8 +5,8 @@ import { openapi } from '../src/lib/openapi';
 
 const OUTPUT = './content/docs/api';
 
-// tag 前缀（规范中为中文，含 '/' 层级）→ ASCII 目录名 + 目录展示名
-// 注意：目录名必须用 ASCII，避免静态部署时 URL 编码路径在 nginx/Caddy/serve 下 404
+// Map tag prefixes, which may contain Chinese text and slash hierarchy, to ASCII directory names and display labels.
+// Directory names must remain ASCII to avoid encoded-path 404s under Nginx, Caddy, or serve after static deployment.
 const groups: Record<string, { dir: string; title: string }> = {
   获取模型列表: { dir: 'models', title: '可用模型' },
   'OpenAI格式(Chat)': { dir: 'deepseek', title: 'DeepSeek 对话（备用）' },
@@ -22,7 +22,7 @@ function groupOf(tags: string[] | undefined) {
   return groups[prefix] ?? { dir: 'misc', title: '其他' };
 }
 
-// relay.json 中存在重复的 operationId（如 createImage），按出现顺序去重文件名
+// relay.json may contain duplicate operationId values such as createImage; deduplicate filenames by encounter order.
 const used = new Map<string, number>();
 function uniqueName(base: string) {
   const n = (used.get(base) ?? 0) + 1;
@@ -31,8 +31,8 @@ function uniqueName(base: string) {
 }
 
 for (const entry of readdirSync(OUTPUT, { withFileTypes: true })) {
-  // API 首页是手写导览；其余内容均由 OpenAPI 生成，必须清理后重建，避免
-  // 上游删掉端点后旧文档继续出现在站点与搜索索引中。
+  // The API landing page is handwritten. Rebuild all other content from OpenAPI after cleanup
+  // so removed upstream endpoints do not remain in the site or search index.
   if (entry.isFile() && entry.name === 'index.mdx') continue;
   rmSync(join(OUTPUT, entry.name), { recursive: true, force: true });
 }
@@ -41,7 +41,7 @@ void generateFiles({
   input: openapi,
   output: OUTPUT,
   per: 'operation',
-  // 端点描述直接进 MDX（上游规范描述为中文）
+  // Endpoint descriptions enter MDX directly and may be Chinese in the upstream specification.
   includeDescription: true,
   meta: true,
   name(output) {
@@ -54,14 +54,14 @@ void generateFiles({
     return `${dir}/${uniqueName(opId)}`;
   },
 }).then(() => {
-  // 后处理 1：根 meta.json 改为「文件夹引用」结构，侧边栏按家族分组折叠
+  // Post-process 1: use folder references in the root meta.json so the sidebar groups endpoint families.
   const rootMeta = {
     title: 'API 参考',
     pages: ['index', ...new Set(Object.values(groups).map((g) => g.dir))],
   };
   writeFileSync(join(OUTPUT, 'meta.json'), JSON.stringify(rootMeta, null, 2) + '\n');
 
-  // 后处理 2：为每个分组目录写 meta.json（带中文标题；无 groupBy 时生成器不会创建）
+  // Post-process 2: write meta.json for every group directory; the generator omits it without groupBy.
   const seen = new Set<string>();
   for (const { dir, title } of Object.values(groups)) {
     if (seen.has(dir)) continue;

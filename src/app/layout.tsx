@@ -8,7 +8,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  // TODO: 替换为文档站正式域名
+  // TODO: Replace with the production documentation domain.
   metadataBase: new URL('https://docs.focalapi.com'),
 };
 

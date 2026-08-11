@@ -9,9 +9,9 @@ param(
   [switch]$KeepLocalBuildArtifacts
 )
 
-# FocalAPI 文档站部署：本地构建 linux/amd64 镜像 -> 导出压缩 -> 上传 ->
-# 服务器导入镜像并并入 focalapi-llm compose 项目（docs 服务）。
-# 约定与 focalapi-llm/deploy/focalapi-llm/deploy.ps1 一致：非交互密钥登录。
+# Deploy FocalAPI Docs: build a linux/amd64 image locally, export and upload it,
+# then import it on the server and join the docs service to the focalapi-llm Compose project.
+# Follow focalapi-llm/deploy/focalapi-llm/deploy.ps1 conventions and use non-interactive key authentication.
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -143,8 +143,8 @@ try {
   Remove-Item -LiteralPath $imageArchivePath -Force -ErrorAction SilentlyContinue
 
   if (-not $KeepLocalBuildArtifacts) {
-    # 镜像已上传到生产机；默认移除镜像和 Buildx 缓存，避免 Docker Desktop
-    # 在 C: 盘持续积累构建层。排查构建问题时才显式传 -KeepLocalBuildArtifacts。
+    # The image is already uploaded to production. Remove the local image and Buildx cache by default
+    # so Docker Desktop does not accumulate layers on C:. Keep artifacts only while diagnosing a build.
     # This cleanup is intentionally best-effort.
     try { & docker image rm --force $image *> $null } catch {}
     try { & docker builder prune --all --force *> $null } catch {}

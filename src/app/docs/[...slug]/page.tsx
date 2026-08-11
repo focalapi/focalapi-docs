@@ -1,7 +1,7 @@
 import { source } from '@/lib/source';
 import { Redirector } from '../redirector';
 
-// 语言无关深链：/docs/<path> 按浏览器语言跳转到 /{zh|en}/docs/<path>
+// Language-neutral deep link: redirect /docs/<path> to /{zh|en}/docs/<path> based on browser language.
 export default function Page() {
   return <Redirector />;
 }

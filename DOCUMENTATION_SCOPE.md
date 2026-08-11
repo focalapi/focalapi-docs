@@ -1,13 +1,13 @@
-# FocalAPI 文档范围
+# FocalAPI documentation scope
 
-FocalAPI 是面向创作工作流的模型中转服务。文档、首页、导航、示例和 API 参考必须把图像、视频、音频、3D 与其他视觉创作能力放在首位。
+FocalAPI is a model gateway for creative workflows. Documentation, the home page, navigation, examples, and API references must prioritize image, video, audio, 3D, and other visual-creation capabilities.
 
-## 固定产品边界
+## Fixed product boundary
 
-- 主推并完整记录可用于创作的图像、视频、音频、3D 与视觉模型能力。
-- 通用文本模型只将 DeepSeek 作为备用能力展示；不能把它包装成产品主线。
-- 不将 OpenAI、Claude、Claude Code、编码模型、通用聊天模型、向量、重排序、搜索、Realtime、Files 或 Fine-tuning 作为面向用户的重点功能或导航入口。
-- 某个接口存在于上游 OpenAPI 规范，并不代表必须在文档站公开。`scripts/sync-openapi.ts` 的 `publicCreativeOperations` 是公开 API 参考的唯一允许清单。
-- 新增文档前先确认它服务于创作主线；不符合这条边界的内容不进入站点导航、首页、示例或搜索索引。
+- Promote and fully document image, video, audio, 3D, and visual models that support creative work.
+- Treat DeepSeek as a fallback for general text work; do not present it as the main product workflow.
+- Do not promote OpenAI, Claude, Claude Code, coding models, general chat models, embeddings, reranking, search, Realtime, Files, or fine-tuning as primary user-facing features or navigation entries.
+- An endpoint appearing in the upstream OpenAPI specification does not imply that it belongs in the public documentation. `publicCreativeOperations` in `scripts/sync-openapi.ts` is the only allowlist for the public API reference.
+- Before adding documentation, confirm that it supports the creative-product focus. Content outside this boundary must not enter site navigation, the home page, examples, or the search index.
 
-当新增创作模型或端点时，同时更新产品范围页、相应指南和允许清单，并使用实际可用模型 ID 与官方原生请求语义。
+When adding a creative model or endpoint, update the product-scope page, the relevant guide, and the allowlist together. Use actual available model IDs and official native request semantics.

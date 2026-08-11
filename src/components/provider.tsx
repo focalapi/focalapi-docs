@@ -6,7 +6,7 @@ import { i18nProvider } from 'fumadocs-ui/i18n';
 import { useEffect, type ReactNode } from 'react';
 
 export function Provider({ children, lang }: { children: ReactNode; lang: string }) {
-  // 静态导出下根 <html> 无法按 locale 渲染，这里同步文档语言标记
+  // Static export cannot render the root <html> per locale, so synchronize the document language here.
   useEffect(() => {
     document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang;
   }, [lang]);

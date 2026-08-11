@@ -5,7 +5,7 @@ import { zhCN } from '@fumadocs/language/zh-cn';
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
 import { appName, appNameEn, gitBaseUrl } from './shared';
 
-// 官方简体中文语言包（覆盖 UI + OpenAPI 组件字符串），英文为组件内建默认值
+// Official Simplified Chinese locale for UI and OpenAPI components; component defaults provide English.
 export const translations = i18n
   .translations()
   .extend(uiTranslations())

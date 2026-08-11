@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-// 静态导出无法使用服务端中间件，在客户端按浏览器语言重定向
+// Static export cannot use server middleware, so redirect on the client according to browser language.
 export default function RootPage() {
   const router = useRouter();
 

@@ -4,7 +4,7 @@ export const docsRoute = '/docs';
 export const docsImageRoute = '/og/docs';
 export const docsContentRoute = '/llms.mdx/docs';
 
-// GitHub 仓库信息（文档站源码）
+// GitHub repository information for the documentation source.
 export const gitConfig = {
   host: 'https://github.com',
   user: 'focalapi',

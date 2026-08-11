@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# 文档站服务器端构建部署（2026-08-07 起，替代本地 deploy-docs.ps1——
-# 本地 Docker Desktop 已停用；服务器拉 docker.io 官方源快，base 层缓存复用）。
-# 用法: ./deploy/deploy-docs-server.sh [commit]
-# 前置: commit 必须已 push（脚本校验 origin 包含）。
+# Build and deploy the documentation site on the server. This replaced local deploy-docs.ps1 on 2026-08-07.
+# Local Docker Desktop is no longer used; the server pulls docker.io quickly and reuses cached base layers.
+# Usage: ./deploy/deploy-docs-server.sh [commit]
+# Prerequisite: the commit must be pushed; the script verifies that an origin branch contains it.
 set -Eeuo pipefail
 
 HOST="${FOCALAPI_DOCS_HOST:-root@107.182.191.131}"
