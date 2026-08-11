@@ -56,7 +56,7 @@ const editorialOverrides: Record<string, { summary: string; description: string 
 
 if (!existsSync(source)) {
   console.error(`未找到上游规范：${source}`);
-  console.error('请传入 focalapi-llm 仓库路径，例如：bun run sync:openapi D:/hezh/Gitee/focalapi-llm');
+  console.error('请传入 focalapi-llm 仓库路径，例如：bun run sync:openapi ../focalapi-llm');
   process.exit(1);
 }
 

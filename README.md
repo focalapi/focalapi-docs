@@ -2,7 +2,8 @@
 
 FocalAPI 的用户文档站，基于 [Fumadocs](https://fumadocs.dev)（Next.js 16 + 静态导出），中文为主、英文为辅，API 参考由 OpenAPI 规范自动生成。
 
-- 线上内容对应主仓库：[focalapi-llm](https://gitee.com/xnn-ai/focalapi-llm)
+- 产品主页：[focalapi.com](https://focalapi.com)
+- 源码仓库：[GitHub](https://github.com/focalapi/focalapi-docs)
 - 站点：构建产物为纯静态文件（`out/`），可部署到任意静态托管 / VPS + Caddy / Nginx
 
 ## 常用命令
@@ -64,14 +65,15 @@ bun run build          # 3. 验证构建
 
 ### Docker（生产，与 focalapi-llm 同机）
 
-镜像为「bun 构建静态产物 + Caddy 静态服务」的多阶段构建，服务器只导入镜像不编译：
+当前发布流程在服务器构建镜像，本地只归档并上传指定提交。部署前必须完成构建验证并把目标提交推送到 `origin`：
 
-```powershell
-# 本机（Windows + Docker Desktop，密钥 ~/.ssh/focalapi_ed25519）
-.\deploy\deploy-docs.ps1
+```bash
+bun run types:check
+bun run build
+./deploy/deploy-docs-server.sh [commit]
 ```
 
-脚本流程：buildx 构建 `linux/amd64` 镜像 → 导出压缩 → 上传到服务器 `/tmp` → 远端 `remote-deploy-docs.sh` 导入镜像、并入 `focalapi-llm` compose 项目（`docs` 服务，宿主端口 `${DOCS_PORT:-3001}`）→ 健康检查 `/zh/docs`。
+脚本流程：校验提交已推送 → 归档源码并上传服务器 → 构建 `linux/amd64` 镜像 → 更新 `focalapi-llm` compose 项目中的 `docs` 服务 → 健康检查 `http://127.0.0.1:3001/zh/docs`。
 
 - compose 服务定义在 focalapi-llm 仓 `deploy/focalapi-llm/docker-compose.prod.yml`；**首次发布需先跑过一次 app 部署**（该次发布会写入含 docs 服务的 compose，随后本脚本导入镜像并启动 docs）
 - 公网访问：反向代理站点 `docs.focalapi.com → 127.0.0.1:3001` + DNS A 记录指向服务器；Caddy 配置示例见 focalapi-llm 部署 README

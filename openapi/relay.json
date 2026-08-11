@@ -1340,7 +1340,7 @@
             "in": "path",
             "description": "模型名称",
             "required": true,
-            "example": "gemini-3-pro-image-preview",
+            "example": "gemini-3-pro-image",
             "schema": {
               "type": "string"
             }

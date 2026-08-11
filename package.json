@@ -2,6 +2,14 @@
   "name": "focalapi-docs",
   "version": "0.1.0",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/focalapi/focalapi-docs.git"
+  },
+  "homepage": "https://docs.focalapi.com",
+  "bugs": {
+    "url": "https://github.com/focalapi/focalapi-docs/issues"
+  },
   "scripts": {
     "build": "next build",
     "dev": "next dev",
