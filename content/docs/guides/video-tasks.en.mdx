@@ -1,80 +1,96 @@
 ---
-title: Video Generation (Async Tasks)
-description: Create a task, poll status, download the result — the async task pattern explained
+title: Video Models and Async Tasks
+description: Discover current video models, create tasks, poll status, and download results
 ---
 
-Video generation is **asynchronous**: submit parameters, receive a task ID, poll until done, then download the result.
+Video generation is asynchronous: submit a request, receive a `task_id`, poll its status, and download the completed asset. Before submitting, use `GET /v1/models` to list models visible to the current key and `GET /v1/models/{model}` for exact duration, resolution, aspect-ratio, and media-input constraints.
 
-## Task lifecycle
+## Current video models
 
-```
-POST create task  →  returns task_id (charged at this point)
-     ↓
-GET task status   →  queued / processing / succeeded / failed
-     ↓
-Download the result on success (failed tasks are refunded automatically)
-```
+| Family | Current model IDs |
+| --- | --- |
+| Seedance | `dreamina-seedance-2-0-260128`, `dreamina-seedance-2-0-fast-260128`, `dreamina-seedance-2-0-mini-260615`, `dreamina-seedance-2-5-260628` |
+| Gemini Omni | `gemini-omni-flash-preview` |
+| Kling | `kling-3.0` |
+| Vidu | `viduq3-pro`, `viduq3-turbo` |
+| MiniMax | `MiniMax-H3` |
+| LTX | `ltx-2-5-fast`, `ltx-2-5-pro` |
+| FLUX | `flux-3` |
+| Grok Imagine | `grok-imagine-video-1.5`, `grok-imagine-video` |
+
+The retired Veo 3.1 Preview models are no longer part of the current catalog. Do not submit those old IDs.
 
 ## 1. Create a task
 
-Unified entrypoint `POST /v1/video/generations`:
+Use the unified `POST /v1/video/generations` endpoint:
 
 ```bash
 curl https://api.focalapi.com/v1/video/generations \
   -H "Authorization: Bearer $FOCALAPI_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "dreamina-seedance-2-0-mini-260615",
-    "prompt": "Slow push-in shot, raindrops on a car window",
+    "model": "dreamina-seedance-2-5-260628",
+    "prompt": "A slow camera push through a rainy neon city street",
     "duration": 5,
-    "size": "1280x720"
+    "metadata": {
+      "resolution": "720p",
+      "ratio": "16:9",
+      "generate_audio": true
+    }
   }'
 ```
 
 Response:
 
 ```json
-{ "task_id": "cst_xxxxxxxx", "status": "queued" }
+{ "task_id": "task_xxxxxxxx", "status": "queued" }
 ```
 
 <Callout type="warn">
-`duration` (seconds) and resolution determine the unit price, charged once at creation. Out-of-range parameters return 400.
+Parameters are not interchangeable across models. Kling uses 3–15 seconds and `aspect_ratio`; Vidu uses 1–16 seconds; LTX accepts fixed duration-and-dimension combinations; FLUX 3 uses `hd`/`fhd`. Follow model details instead of copying parameters between families.
 </Callout>
 
-## 2. Poll task status
+## 2. Choose model-specific parameters
 
-`GET /v1/video/generations/{task_id}`:
+| Family | Important constraints |
+| --- | --- |
+| Seedance 2.5 | 4–30 seconds, `480p`/`720p`, multiple `ratio` values, and native audio |
+| Gemini Omni Flash | 3–10 seconds, `16:9` or `9:16` |
+| Kling 3.0 | 3–15 seconds, `720p`/`1080p`/`4k`, optional first and last frames, and optional audio |
+| Vidu Q3 | 1–16 seconds, `720p`/`1080p`, first and last frames, audio, and `seed` |
+| MiniMax H3 | 5–15 seconds, `768p`/`2k`; `content` can combine text with image, video, or audio references |
+| LTX 2.5 | Fixed `duration`, pixel dimensions, and `fps` combinations; first and last frames are supplied through `content` |
+| FLUX 3 | 5–20 seconds, `hd`/`fhd`, keyframes or video continuation, and `safety_tolerance` |
+| Grok Imagine Video | 1–15 seconds, `480p`/`720p`/`1080p`, `aspect_ratio`, and `seed` |
+
+For example, inspect the complete live FLUX 3 contract:
 
 ```bash
-curl https://api.focalapi.com/v1/video/generations/cst_xxxxxxxx \
+curl https://api.focalapi.com/v1/models/flux-3 \
   -H "Authorization: Bearer $FOCALAPI_KEY"
 ```
 
-State machine:
+## 3. Poll task status
+
+Call `GET /v1/video/generations/{task_id}`:
+
+```bash
+curl https://api.focalapi.com/v1/video/generations/task_xxxxxxxx \
+  -H "Authorization: Bearer $FOCALAPI_KEY"
+```
 
 | Status | Meaning | Action |
 | --- | --- | --- |
-| `queued` | Waiting | Keep polling |
-| `processing` | Generating | Keep polling |
-| `succeeded` | Done | Download from the result URL or content endpoint |
-| `failed` | Failed | Read the `error` field; charge is refunded automatically |
+| `queued` | Waiting | Keep polling the same task |
+| `processing` / `in_progress` | Generating | Keep polling the same task |
+| `succeeded` / `completed` | Done | Use the result URL or download the asset |
+| `failed` | Failed | Read `error`; do not blindly resubmit the same generation request |
 
-Polling guidance: every 5–10 seconds with exponential backoff; video tasks typically take 1–5 minutes.
+Poll every 5–10 seconds with exponential backoff. A queued or running task is not a failure, so do not create duplicate tasks while waiting.
 
-## 3. Download the result
+## 4. Download the result
 
-For Sora-compatible tasks, `GET /v1/videos/{task_id}/content` streams the video file directly — no expiring URLs.
-
-## Native format entrypoints
-
-Besides the unified endpoint, three native formats are available, with fields aligned to each vendor's docs:
-
-| Format | Create | Query |
-| --- | --- | --- |
-| Sora-compatible | `POST /v1/videos` | `GET /v1/videos/{task_id}` |
-| Ark/BytePlus native | `POST /api/v3/contents/generations/tasks` | `GET /api/v3/contents/generations/tasks/{id}` |
-| Kling | `POST /kling/v1/videos/text2video`<br/>`POST /kling/v1/videos/image2video` | `GET /kling/v1/videos/text2video/{task_id}`<br/>`GET /kling/v1/videos/image2video/{task_id}` |
-| Jimeng | `POST /jimeng/` | per response convention |
+Use the result URL returned by a successful task. For tasks that support the unified content proxy, `GET /v1/videos/{task_id}/content` streams the video file and avoids expiring signed URLs.
 
 <Cards>
   <Card title="Video endpoint reference" href="/docs/api/video/createVideoGeneration" />

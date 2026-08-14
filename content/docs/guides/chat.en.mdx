@@ -14,19 +14,19 @@ curl https://api.focalapi.com/v1/chat/completions \
   -H "Authorization: Bearer $FOCALAPI_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "deepseek-chat",
+    "model": "deepseek-v4-flash",
     "messages": [
       {"role": "user", "content": "Turn this product description into a six-shot video storyboard"}
     ]
   }'
 ```
 
-Replace `deepseek-chat` with the actual ID returned for your key. Requests support `stream: true` for long prompts and script drafts.
+The current production catalog includes `deepseek-v4-flash` and `deepseek-v4-pro`. If your key returns a different set, use the exact listed ID. Requests support `stream: true` for long prompts and script drafts.
 
 ## Boundary
 
 - Treat chat output as a supporting input to a creative workflow, not as the product catalog.
-- Use the dedicated creation APIs for image, video, and audio work.
+- Use the dedicated model APIs for creative work.
 - Do not assume other general chat, coding, or text models are available.
 
 <Cards>

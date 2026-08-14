@@ -1,55 +1,72 @@
 ---
-title: Comfy Cloud Image Models
-description: Call GPT Image, Seedream, Gemini Image, Nano Banana, and Grok through their native-compatible APIs
+title: Creative Image Models
+description: Discover and call the current GPT Image, Seedream, Gemini, Grok, Kling, Krea, and Qwen image models
 ---
 
-These image models run through the Comfy Cloud account pool. Clients do not need to know about the pool or workflow: select a model and use its official request and response format.
+FocalAPI provides unified authentication for multiple creative image models while preserving each model's native parameter semantics. Use `GET /v1/models` to list models visible to the current key, then `GET /v1/models/{model}` for the model's live endpoint and parameter contract.
 
 <Callout type="info">
-Availability depends on your token group and administrator channel configuration. `GET /v1/models` and the Model Marketplace are the source of truth.
+Availability, parameters, and pricing can vary by user group. Live model details and the console model catalog are authoritative. Do not use retired IDs or aliases that are absent from the list.
 </Callout>
 
-## Unified image generation API
+## Unified image API
 
-Use `POST /v1/images/generations` for generation and `POST /v1/images/edits` for editing. FocalAPI preserves the creative parameters required by each model while returning a unified image result.
+The following current models use `POST /v1/images/generations`. For editing, use reference-image fields or `POST /v1/images/edits` as shown by the selected model's details.
 
-| Model ID | Product |
+| Family | Current model IDs |
 | --- | --- |
-| `gpt-image-2` | GPT Image 2 |
-| `seedream-4-0-250828` | Seedream 4.0 |
-| `seedream-4-5-251128` | Seedream 4.5 |
-| `dola-seedream-5-0-pro-260628` | Dola Seedream 5.0 Pro |
-| `seedream-5-0-260128` | Seedream 5.0（also supports `seedream-5-0-lite-260128`） |
-| `grok-imagine-image-quality` | Grok Imagine Quality |
-| `grok-imagine-image-pro` | Grok Imagine Pro |
-| `grok-imagine-image` | Grok Imagine |
+| GPT Image | `gpt-image-2` |
+| Seedream | `seedream-4-0-250828`, `seedream-4-5-251128`, `dola-seedream-5-0-pro-260628`, `seedream-5-0-260128` |
+| Grok Imagine | `grok-imagine-image-quality`, `grok-imagine-image`, `grok-imagine-image-2.0` |
+| Kling Image | `kling-v3` |
+| Krea 2 | `krea-2-medium`, `krea-2-medium-turbo`, `krea-2-large` |
+| Qwen Image | `qwen-image-3.0`, `qwen-image-3.0-pro` |
 
 ```bash
 curl https://api.focalapi.com/v1/images/generations \
   -H "Authorization: Bearer $FOCALAPI_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "dola-seedream-5-0-pro-260628",
+    "model": "seedream-5-0-260128",
     "prompt": "A lighthouse by the sea in morning fog, cinematic lighting",
     "size": "2k",
     "watermark": false
   }'
 ```
 
-`gpt-image-2` supports `low`, `medium`, and `high` `quality`, plus `background` and single-image `mask` editing. Supported sizes, reference images, and output counts vary by model; follow the API validation response.
+## Model-specific parameters
+
+Do not apply one fixed parameter set to every model:
+
+| Family | Important differences |
+| --- | --- |
+| GPT Image 2 | `size`, `quality`, `background`, and a single reference image with `mask` |
+| Seedream | Version-specific `size` tiers, reference-image limits, `watermark`, and prompt optimization |
+| Grok Imagine 2.0 | `aspect_ratio`, `resolution`, `quality`, and `seed`; up to 10 outputs |
+| Kling Image 3.0 | `aspect_ratio` and `negative_prompt`; up to 9 outputs; a reference image cannot be combined with a negative prompt |
+| Krea 2 | `aspect_ratio`, fixed `1K` resolution, `creativity`, style references, and a moodboard; one output per request |
+| Qwen Image 3.0 | `size`, up to three reference images, `negative_prompt`, `prompt_extend`, and `watermark`; up to six outputs |
+
+Read exact constraints before constructing an advanced request:
+
+```bash
+curl https://api.focalapi.com/v1/models/kling-v3 \
+  -H "Authorization: Bearer $FOCALAPI_KEY"
+```
 
 ## Native Gemini API
 
-Use Gemini's native `generateContent` endpoint for the following models. To generate an image, `generationConfig.responseModalities` must contain only `IMAGE`.
+Gemini image models use the native `generateContent` endpoint:
 
-| Model ID | Product |
+| Current model ID | Product |
 | --- | --- |
-| `gemini-3-pro-image-preview` | Gemini 3 Pro Image Preview |
-| `gemini-3.1-flash-image-preview` | Nano Banana 2 |
-| `gemini-3.1-flash-lite-image-preview` | Nano Banana 2 Lite |
+| `gemini-2.5-flash-image` | Gemini 2.5 Flash Image |
+| `gemini-3-pro-image` | Gemini 3 Pro Image |
+| `gemini-3.1-flash-image` | Gemini 3.1 Flash Image |
+| `gemini-3.1-flash-lite-image` | Gemini 3.1 Flash Lite Image |
 
 ```bash
-curl 'https://api.focalapi.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent' \
+curl 'https://api.focalapi.com/v1beta/models/gemini-3.1-flash-image:generateContent' \
   -H "Authorization: Bearer $FOCALAPI_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -63,14 +80,14 @@ curl 'https://api.focalapi.com/v1beta/models/gemini-3.1-flash-image-preview:gene
   }'
 ```
 
-Images are returned as `inlineData` in response candidates. Use Gemini-native `aspectRatio` and `imageSize` when available; FocalAPI validates them against the selected model.
+Images are returned as `inlineData` in response candidates. Whether `aspectRatio`, `imageSize`, and sampling fields are accepted still depends on the selected Gemini model's live details.
 
-## Billing and retries
+## Billing
 
-Pricing depends on request parameters such as image count, resolution, quality, and reference-image count. FocalAPI reserves quota before submission and settles against successful output count; a failed submission does not retain a charge. Check the Model Marketplace for current prices.
+Pricing depends on the model and parameters such as output count, resolution, quality, and reference-image count. Check the console model catalog for current prices and discounts.
 
 <Cards>
   <Card title="Images API reference" href="/docs/api/images/createImage" />
-  <Card title="Gemini API reference" href="/docs/api/gemini/geminiRelayV1Beta" />
+  <Card title="Gemini API reference" href="/docs/api/gemini-image/geminiRelayV1Beta" />
   <Card title="Billing and quota" href="/docs/billing" />
 </Cards>

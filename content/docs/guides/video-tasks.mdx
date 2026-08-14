@@ -1,82 +1,96 @@
 ---
-title: 视频生成（异步任务）
-description: 创建任务、轮询状态、下载成片——异步任务模式详解
+title: 视频模型与异步任务
+description: 查询当前视频模型，创建任务、轮询状态并下载成片
 ---
 
-视频生成是**异步任务**：提交参数后先拿到任务 ID，再轮询状态，成功后下载成片。同步等待 HTTP 响应不会阻塞到出片。
+视频生成采用异步任务：提交请求后获得 `task_id`，轮询状态，成功后下载成片。开始前先用 `GET /v1/models` 查询当前 Key 可见的模型，再用 `GET /v1/models/{model}` 获取准确的时长、分辨率、画面比例与媒体输入约束。
 
-## 任务生命周期
+## 当前视频模型
 
-```
-POST 创建任务  →  返回 task_id（此时扣费）
-     ↓
-GET 查询任务   →  状态: queued / processing / succeeded / failed
-     ↓
-成功后用内容接口下载成片（失败自动退费）
-```
+| 系列 | 当前模型 ID |
+| --- | --- |
+| Seedance | `dreamina-seedance-2-0-260128`、`dreamina-seedance-2-0-fast-260128`、`dreamina-seedance-2-0-mini-260615`、`dreamina-seedance-2-5-260628` |
+| Gemini Omni | `gemini-omni-flash-preview` |
+| Kling | `kling-3.0` |
+| Vidu | `viduq3-pro`、`viduq3-turbo` |
+| MiniMax | `MiniMax-H3` |
+| LTX | `ltx-2-5-fast`、`ltx-2-5-pro` |
+| FLUX | `flux-3` |
+| Grok Imagine | `grok-imagine-video-1.5`、`grok-imagine-video` |
+
+已下线的 Veo 3.1 Preview 模型不再属于当前目录，请不要继续提交这些旧模型 ID。
 
 ## 1. 创建任务
 
-统一入口 `POST /v1/video/generations`：
+统一入口为 `POST /v1/video/generations`：
 
 ```bash
 curl https://api.focalapi.com/v1/video/generations \
   -H "Authorization: Bearer $FOCALAPI_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "dreamina-seedance-2-0-mini-260615",
-    "prompt": "镜头缓慢推近，雨滴落在车窗上",
+    "model": "dreamina-seedance-2-5-260628",
+    "prompt": "镜头缓慢推进雨中的城市霓虹街道",
     "duration": 5,
-    "size": "1280x720"
+    "metadata": {
+      "resolution": "720p",
+      "ratio": "16:9",
+      "generate_audio": true
+    }
   }'
 ```
 
 响应：
 
 ```json
-{ "task_id": "cst_xxxxxxxx", "status": "queued" }
+{ "task_id": "task_xxxxxxxx", "status": "queued" }
 ```
 
 <Callout type="warn">
-`duration`（秒）与分辨率直接决定任务单价，创建任务时一次性扣费。参数有服务端上限，超限返回 400。
+不同模型的参数并不通用。例如 Kling 使用 3–15 秒和 `aspect_ratio`，Vidu 使用 1–16 秒，LTX 使用固定时长与尺寸组合，FLUX 3 使用 `hd`/`fhd`。请以模型详情为准，不要把某个模型的参数直接复制给另一个模型。
 </Callout>
 
-## 2. 轮询任务状态
+## 2. 按模型选择参数
+
+| 系列 | 主要约束 |
+| --- | --- |
+| Seedance 2.5 | 4–30 秒，`480p`/`720p`，支持多种 `ratio` 与原生音频 |
+| Gemini Omni Flash | 3–10 秒，`16:9` 或 `9:16` |
+| Kling 3.0 | 3–15 秒，`720p`/`1080p`/`4k`，支持首尾帧与可选音频 |
+| Vidu Q3 | 1–16 秒，`720p`/`1080p`，支持首尾帧、音频与 `seed` |
+| MiniMax H3 | 5–15 秒，`768p`/`2k`，通过 `content` 组合文本、图片、视频或音频参考 |
+| LTX 2.5 | 使用固定的 `duration`、像素尺寸与 `fps` 组合，通过 `content` 提供首尾帧 |
+| FLUX 3 | 5–20 秒，`hd`/`fhd`，支持关键帧或视频续写以及 `safety_tolerance` |
+| Grok Imagine Video | 1–15 秒，`480p`/`720p`/`1080p`，支持 `aspect_ratio` 与 `seed` |
+
+例如查询 FLUX 3 的完整实时契约：
+
+```bash
+curl https://api.focalapi.com/v1/models/flux-3 \
+  -H "Authorization: Bearer $FOCALAPI_KEY"
+```
+
+## 3. 轮询任务状态
 
 `GET /v1/video/generations/{task_id}`：
 
 ```bash
-curl https://api.focalapi.com/v1/video/generations/cst_xxxxxxxx \
+curl https://api.focalapi.com/v1/video/generations/task_xxxxxxxx \
   -H "Authorization: Bearer $FOCALAPI_KEY"
 ```
 
-状态机：
-
 | 状态 | 含义 | 建议动作 |
 | --- | --- | --- |
-| `queued` | 排队中 | 继续轮询 |
-| `processing` | 生成中 | 继续轮询 |
-| `succeeded` | 成功 | 取结果 URL 或调内容接口下载 |
-| `failed` | 失败 | 读取 `error` 字段；费用自动退回 |
+| `queued` | 排队中 | 继续轮询同一个任务 |
+| `processing` / `in_progress` | 生成中 | 继续轮询同一个任务 |
+| `succeeded` / `completed` | 成功 | 取结果 URL 或下载成片 |
+| `failed` | 失败 | 读取 `error`，不要重复提交同一个生成请求 |
 
-轮询建议：每 5–10 秒一次，配合指数退避；视频任务通常需要 1–5 分钟。
+建议每 5–10 秒轮询一次，并配合指数退避。排队或生成中不是失败，不要因为暂时没有结果而创建重复任务。
 
-## 3. 下载成片
+## 4. 下载成片
 
-任务成功后，Sora 兼容格式还提供内容代理接口 `GET /v1/videos/{task_id}/content`，直接返回视频文件流，避免结果 URL 过期问题。
-
-## 原生格式入口
-
-除统一入口外，还提供三家原生格式，字段与各家官方文档对齐：
-
-| 格式 | 创建 | 查询 |
-| --- | --- | --- |
-| Sora 兼容 | `POST /v1/videos` | `GET /v1/videos/{task_id}` |
-| Ark/BytePlus 原生 | `POST /api/v3/contents/generations/tasks` | `GET /api/v3/contents/generations/tasks/{id}` |
-| Kling | `POST /kling/v1/videos/text2video`<br/>`POST /kling/v1/videos/image2video` | `GET /kling/v1/videos/text2video/{task_id}`<br/>`GET /kling/v1/videos/image2video/{task_id}` |
-| 即梦 | `POST /jimeng/` | 随响应约定 |
-
-Seedance 2.0 系列支持 Ark/BytePlus 原生格式，请求体与响应结构（含 `usage.completion_tokens` 计费口径）与火山方舟官方一致，可直接迁移：
+任务成功后使用响应中的结果 URL。对支持统一内容代理的任务，也可以调用 `GET /v1/videos/{task_id}/content` 获取视频文件流，避免签名 URL 过期。
 
 <Cards>
   <Card title="视频接口参数详情" href="/docs/api/video/createVideoGeneration" />

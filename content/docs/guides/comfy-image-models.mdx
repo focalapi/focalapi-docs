@@ -1,55 +1,72 @@
 ---
-title: Comfy Cloud 图像模型
-description: 用模型原生兼容的接口调用 GPT Image、Seedream、Gemini 图像、Nano Banana 与 Grok
+title: 创作图像模型
+description: 查询并调用当前可用的 GPT Image、Seedream、Gemini、Grok、Kling、Krea 与 Qwen 图像模型
 ---
 
-这些图像模型由 Comfy Cloud 账户池执行，但客户端不需要了解账户池或工作流。选择模型后，继续使用其官方原生的请求与响应格式。
+FocalAPI 使用统一认证接入多家创作图像模型，同时保留各模型的原生参数语义。先通过 `GET /v1/models` 查询当前 Key 可见的模型，再用 `GET /v1/models/{model}` 获取该模型的实时端点与参数契约。
 
 <Callout type="info">
-模型是否可调用取决于令牌分组和管理员的渠道配置；以 `GET /v1/models` 与控制台模型广场的实际结果为准。
+模型可用性、参数和价格可能随用户分组变化。实时模型详情与控制台模型广场是最终依据；不要使用模型列表中不存在的旧 ID 或别名。
 </Callout>
 
-## 统一图像生成接口
+## 统一图像接口
 
-以下模型使用 `POST /v1/images/generations`；编辑图片时使用 `POST /v1/images/edits`。FocalAPI 会保留模型所需的创作参数语义，并统一返回图像结果。
+以下当前模型使用 `POST /v1/images/generations`；需要编辑图片时，按模型详情使用参考图或 `POST /v1/images/edits`。
 
-| 模型 ID | 产品名称 |
+| 系列 | 当前模型 ID |
 | --- | --- |
-| `gpt-image-2` | GPT Image 2 |
-| `seedream-4-0-250828` | Seedream 4.0 |
-| `seedream-4-5-251128` | Seedream 4.5 |
-| `dola-seedream-5-0-pro-260628` | Dola Seedream 5.0 Pro |
-| `seedream-5-0-260128` | Seedream 5.0（also supports `seedream-5-0-lite-260128`） |
-| `grok-imagine-image-quality` | Grok Imagine Quality |
-| `grok-imagine-image-pro` | Grok Imagine Pro |
-| `grok-imagine-image` | Grok Imagine |
+| GPT Image | `gpt-image-2` |
+| Seedream | `seedream-4-0-250828`、`seedream-4-5-251128`、`dola-seedream-5-0-pro-260628`、`seedream-5-0-260128` |
+| Grok Imagine | `grok-imagine-image-quality`、`grok-imagine-image`、`grok-imagine-image-2.0` |
+| Kling Image | `kling-v3` |
+| Krea 2 | `krea-2-medium`、`krea-2-medium-turbo`、`krea-2-large` |
+| Qwen Image | `qwen-image-3.0`、`qwen-image-3.0-pro` |
 
 ```bash
 curl https://api.focalapi.com/v1/images/generations \
   -H "Authorization: Bearer $FOCALAPI_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "dola-seedream-5-0-pro-260628",
+    "model": "seedream-5-0-260128",
     "prompt": "晨雾中的海边灯塔，电影感光影",
     "size": "2k",
     "watermark": false
   }'
 ```
 
-`gpt-image-2` 支持 `low`、`medium`、`high` 三档 `quality`，并支持 `background` 与单图 `mask` 编辑。Seedream 各模型支持的尺寸档位不同（例如 5.0 Pro 为 `1k`/`1.5k`/`2k`）；提交前以接口返回的校验结果为准，超范围返回 400 并列出该模型支持的档位。
+## 按模型使用参数
+
+不同模型不能共用一套固定参数：
+
+| 系列 | 主要参数差异 |
+| --- | --- |
+| GPT Image 2 | `size`、`quality`、`background`，以及单参考图配合 `mask` |
+| Seedream | 各版本有不同的 `size` 档位、参考图上限、`watermark` 与提示词优化参数 |
+| Grok Imagine 2.0 | `aspect_ratio`、`resolution`、`quality`、`seed`，最多生成 10 张 |
+| Kling Image 3.0 | `aspect_ratio`、`negative_prompt`，最多生成 9 张；参考图不能与负面提示词同时使用 |
+| Krea 2 | `aspect_ratio`、固定 `1K` 分辨率、`creativity`、风格参考图与 moodboard，每次生成 1 张 |
+| Qwen Image 3.0 | `size`、最多 3 张参考图、`negative_prompt`、`prompt_extend`、`watermark`，最多生成 6 张 |
+
+提交前可直接查看某个模型的精确约束：
+
+```bash
+curl https://api.focalapi.com/v1/models/kling-v3 \
+  -H "Authorization: Bearer $FOCALAPI_KEY"
+```
 
 ## Gemini 原生接口
 
-以下模型使用 Gemini 的原生 `generateContent` 接口。生成图像时，`generationConfig.responseModalities` 推荐 `["IMAGE", "TEXT"]`（`"IMAGE"` 亦可）；带上 `TEXT` 时，问候、问答等非图像类提示词更可能被模型转换成图像输出。
+Gemini 图像模型使用原生 `generateContent` 接口：
 
-| 模型 ID | 产品名称 |
+| 当前模型 ID | 说明 |
 | --- | --- |
-| `gemini-3-pro-image-preview` | Gemini 3 Pro Image Preview |
-| `gemini-3.1-flash-image-preview` | Nano Banana 2 |
-| `gemini-3.1-flash-lite-image-preview` | Nano Banana 2 Lite |
+| `gemini-2.5-flash-image` | Gemini 2.5 Flash Image |
+| `gemini-3-pro-image` | Gemini 3 Pro Image |
+| `gemini-3.1-flash-image` | Gemini 3.1 Flash Image |
+| `gemini-3.1-flash-lite-image` | Gemini 3.1 Flash Lite Image |
 
 ```bash
-curl 'https://api.focalapi.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent' \
+curl 'https://api.focalapi.com/v1beta/models/gemini-3.1-flash-image:generateContent' \
   -H "Authorization: Bearer $FOCALAPI_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -63,14 +80,14 @@ curl 'https://api.focalapi.com/v1beta/models/gemini-3.1-flash-image-preview:gene
   }'
 ```
 
-输出图片在响应候选项的 `inlineData` 中返回。需要指定构图或清晰度时，按 Gemini 原生字段在 `generationConfig.responseFormat.image` 中使用 `aspectRatio` 与 `imageSize`（`imageConfig` 与顶层 `aspectRatio` 不被接受）；FocalAPI 会按模型能力校验参数。
+图片在响应候选项的 `inlineData` 中返回。`aspectRatio`、`imageSize` 和采样参数是否可用，仍以所选 Gemini 模型的实时详情为准。
 
-## 计费与重试
+## 计费
 
-价格与请求参数相关，例如图片张数、分辨率、质量档位和参考图数量。FocalAPI 会在提交任务前预扣，并以实际成功输出的张数结算；提交失败不会保留本次请求的费用。具体单价以控制台模型广场为准。
+价格由模型及图片张数、分辨率、质量档位和参考图数量等参数决定。具体单价和折扣以控制台模型广场为准。
 
 <Cards>
   <Card title="图像生成 API 参考" href="/docs/api/images/createImage" />
-  <Card title="Gemini API 参考" href="/docs/api/gemini/geminiRelayV1Beta" />
+  <Card title="Gemini API 参考" href="/docs/api/gemini-image/geminiRelayV1Beta" />
   <Card title="计费与额度" href="/docs/billing" />
 </Cards>

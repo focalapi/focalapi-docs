@@ -10,7 +10,7 @@ curl https://api.focalapi.com/v1/images/generations \
   -H "Authorization: Bearer $FOCALAPI_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "dola-seedream-5-0-pro-260628",
+    "model": "seedream-5-0-260128",
     "prompt": "玻璃质感的未来运动鞋海报，干净棚拍，蓝白配色",
     "size": "2k",
     "watermark": false
@@ -27,11 +27,11 @@ curl https://api.focalapi.com/v1/images/generations \
 | `quality` | 仅在模型支持时使用 |
 
 <Callout type="info">
-创作模型按照各自的原生能力校验参数。若要使用 Gemini 图像模型的原生字段，请参考 [Comfy Cloud 图像模型](/docs/guides/comfy-image-models)。
+创作模型按照各自的原生能力校验参数。当前模型 ID、参数差异与 Gemini 原生字段见[创作图像模型](/docs/guides/comfy-image-models)。
 </Callout>
 
 <Cards>
-  <Card title="Comfy Cloud 图像模型" href="/docs/guides/comfy-image-models" />
+  <Card title="创作图像模型" href="/docs/guides/comfy-image-models" />
   <Card title="图像 API 参考" href="/docs/api/images/createImage" />
   <Card title="计费与额度" href="/docs/billing" />
 </Cards>

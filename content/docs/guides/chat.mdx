@@ -14,19 +14,19 @@ curl https://api.focalapi.com/v1/chat/completions \
   -H "Authorization: Bearer $FOCALAPI_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "deepseek-chat",
+    "model": "deepseek-v4-flash",
     "messages": [
       {"role": "user", "content": "把这段产品描述整理成 6 镜头的短视频分镜"}
     ]
   }'
 ```
 
-将 `deepseek-chat` 替换为模型列表中的实际 ID。请求支持 `stream: true`，适合长提示词或脚本草稿的渐进输出。
+当前生产目录提供 `deepseek-v4-flash` 与 `deepseek-v4-pro`；如果你的 Key 返回结果不同，请使用列表中的实际 ID。请求支持 `stream: true`，适合长提示词或脚本草稿的渐进输出。
 
 ## 使用边界
 
 - 将对话结果作为创作流程中的辅助输入，而非模型能力目录
-- 图像、视频和音频任务优先使用对应的创作接口
+- 创作任务优先使用对应的模型接口
 - 不要假设其他通用文本、编码或聊天模型可用
 
 <Cards>

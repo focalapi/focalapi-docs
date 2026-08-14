@@ -10,7 +10,7 @@ curl https://api.focalapi.com/v1/images/generations \
   -H "Authorization: Bearer $FOCALAPI_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "dola-seedream-5-0-pro-260628",
+    "model": "seedream-5-0-260128",
     "prompt": "A futuristic sneaker poster with glass texture, clean studio lighting, blue and white palette",
     "size": "2k",
     "watermark": false
@@ -28,11 +28,11 @@ curl https://api.focalapi.com/v1/images/generations \
 | `quality` | Use only when the model supports it. |
 
 <Callout type="info">
-Creative models validate parameters according to their native capabilities. For native Gemini image fields, see [Comfy Cloud Image Models](/docs/guides/comfy-image-models).
+Creative models validate parameters according to their native capabilities. See [Creative Image Models](/docs/guides/comfy-image-models) for current IDs, parameter differences, and native Gemini fields.
 </Callout>
 
 <Cards>
-  <Card title="Comfy Cloud Image Models" href="/docs/guides/comfy-image-models" />
+  <Card title="Creative Image Models" href="/docs/guides/comfy-image-models" />
   <Card title="Image API Reference" href="/docs/api/images/createImage" />
   <Card title="Billing and Quota" href="/docs/billing" />
 </Cards>

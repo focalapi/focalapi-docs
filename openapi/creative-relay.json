@@ -249,7 +249,7 @@
       "post": {
         "summary": "生成图像",
         "deprecated": false,
-        "description": "调用图像生成模型（Seedream 系列、GPT Image、Grok Imagine、Gemini 图像等）。使用模型官方参数集，请求体为 OpenAI 兼容格式；Seedream 模型请使用官方尺寸档位（如 1k/2k）。",
+        "description": "调用当前图像生成模型，包括 Seedream、GPT Image、Grok Imagine、Kling Image、Krea、Qwen Image 与 Gemini 图像系列。请求体保留各模型的原生参数语义；提交前请通过模型详情确认 size、resolution、aspect_ratio、quality 与参考图等约束。",
         "operationId": "createImage",
         "tags": [
           "图片生成/图像模型"
@@ -318,7 +318,7 @@
                 ]
               },
               "example": {
-                "model": "dola-seedream-5-0-pro-260628",
+                "model": "seedream-5-0-260128",
                 "prompt": "晨雾中的海边灯塔，电影感光影",
                 "size": "2k",
                 "watermark": false
@@ -553,6 +553,93 @@
             "BearerAuth": []
           }
         ]
+      }
+    },
+    "/api/v3/contents/generations/tasks": {
+      "post": {
+        "summary": "创建视频生成任务（ark 原生端点）",
+        "deprecated": false,
+        "description": "ark/BytePlus 官方路径 /api/v3/contents/generations/tasks——ark 用户仅需更换 base URL 与 key 即可无缝迁移。请求体与响应结构与官方一致，返回任务 ID，轮询见 GET 同路径。",
+        "operationId": "createVideoTask",
+        "tags": [
+          "视频生成"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "model": {
+                    "type": "string",
+                    "description": "视频模型 ID，如 dola-seedance-2-0-260628"
+                  },
+                  "content": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "text",
+                            "image_url"
+                          ]
+                        },
+                        "text": {
+                          "type": "string"
+                        },
+                        "image_url": {
+                          "type": "object",
+                          "properties": {
+                            "url": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "model",
+                  "content"
+                ]
+              },
+              "example": {
+                "model": "dola-seedance-2-0-260628",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "一只猫在窗台晒太阳 --ratio 16:9 --dur 5"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "任务创建成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "任务 ID"
+                    }
+                  }
+                },
+                "example": {
+                  "id": "task_abc123"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/v1/videos": {
@@ -1179,7 +1266,7 @@
       "post": {
         "summary": "创建视频生成任务",
         "deprecated": false,
-        "description": "提交视频生成任务，支持文生视频和图生视频。\n\n返回任务 ID，可通过 GET 接口查询任务状态。\n",
+        "description": "通过当前 Seedance、Gemini Omni、Kling、Vidu、MiniMax、LTX、FLUX 与 Grok Imagine 视频模型提交文生视频、图生视频或参考媒体任务。返回任务 ID 后通过 GET 接口查询状态；各模型的时长、分辨率、比例和 content 约束以模型详情为准。\n",
         "operationId": "createVideoGeneration",
         "tags": [
           "视频生成"
@@ -1192,10 +1279,14 @@
                 "$ref": "#/components/schemas/VideoRequest"
               },
               "example": {
-                "model": "dreamina-seedance-2-0-mini-260615",
+                "model": "dreamina-seedance-2-5-260628",
                 "prompt": "镜头缓慢推进雨中的城市霓虹街道",
                 "duration": 5,
-                "size": "1280x720"
+                "metadata": {
+                  "resolution": "720p",
+                  "ratio": "16:9",
+                  "generate_audio": true
+                }
               }
             }
           },
@@ -1413,9 +1504,9 @@
     },
     "/v1/audio/transcriptions": {
       "post": {
-        "summary": "音频转录",
-        "deprecated": false,
-        "description": "将音频转换为文本",
+        "summary": "音频转录 (当前部署不可用)",
+        "deprecated": true,
+        "description": "当前部署不提供此端点；调用将返回 HTTP 501 和 endpoint_unavailable。",
         "operationId": "createTranscription",
         "tags": [
           "OpenAI音频(Audio)"
@@ -1505,9 +1596,9 @@
     },
     "/v1/audio/translations": {
       "post": {
-        "summary": "音频翻译",
-        "deprecated": false,
-        "description": "将音频翻译为英文文本",
+        "summary": "音频翻译 (当前部署不可用)",
+        "deprecated": true,
+        "description": "当前部署不提供此端点；调用将返回 HTTP 501 和 endpoint_unavailable。",
         "operationId": "createTranslation",
         "tags": [
           "OpenAI音频(Audio)"
@@ -1572,9 +1663,9 @@
     },
     "/v1/audio/speech": {
       "post": {
-        "summary": "文本转语音",
-        "deprecated": false,
-        "description": "将文本转换为音频",
+        "summary": "文本转语音 (当前部署不可用)",
+        "deprecated": true,
+        "description": "当前部署不提供此端点；调用将返回 HTTP 501 和 endpoint_unavailable。",
         "operationId": "createSpeech",
         "tags": [
           "OpenAI音频(Audio)"
@@ -3477,7 +3568,7 @@
           "model": {
             "type": "string",
             "description": "模型/风格 ID",
-            "example": "kling-v1"
+            "example": "dreamina-seedance-2-5-260628"
           },
           "prompt": {
             "type": "string",
@@ -3531,7 +3622,7 @@
           },
           "metadata": {
             "type": "object",
-            "description": "扩展参数 (如 negative_prompt, style, quality_level 等)",
+            "description": "模型原生扩展参数，例如 resolution、ratio/aspect_ratio、generate_audio、content、fps、seed 或 safety_tolerance；精确字段以模型详情为准",
             "additionalProperties": true,
             "properties": {}
           }
