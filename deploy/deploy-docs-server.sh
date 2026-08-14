@@ -28,6 +28,7 @@ scp -q -i "${IDENTITY}" "${TMP}/docs.tgz" "${HOST}:/tmp/focalapi-docs.tgz"
 
 ssh -i "${IDENTITY}" "${HOST}" "
   set -Eeuo pipefail
+  mkdir -p /opt/focalapi-docs
   rm -rf /opt/focalapi-docs/src /opt/focalapi-docs/docs-src
   tar -xzf /tmp/focalapi-docs.tgz -C /opt/focalapi-docs && rm -f /tmp/focalapi-docs.tgz
   mv /opt/focalapi-docs/docs-src /opt/focalapi-docs/src
