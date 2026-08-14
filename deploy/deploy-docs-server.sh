@@ -5,7 +5,7 @@
 # Prerequisite: the commit must be pushed; the script verifies that an origin branch contains it.
 set -Eeuo pipefail
 
-HOST="${FOCALAPI_DOCS_HOST:-root@107.182.191.131}"
+HOST="${FOCALAPI_DOCS_HOST:-root@104.36.65.33}"
 IDENTITY="${FOCALAPI_DOCS_IDENTITY:-$HOME/.ssh/focalapi_ed25519}"
 COMMIT="${1:-$(git rev-parse --short=12 HEAD)}"
 
