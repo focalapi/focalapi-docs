@@ -9,11 +9,10 @@ Video generation is asynchronous: submit a request, receive a `task_id`, poll it
 
 | Family | Current model IDs |
 | --- | --- |
-| Seedance | `dreamina-seedance-2-0-260128`, `dreamina-seedance-2-0-fast-260128`, `dreamina-seedance-2-0-mini-260615`, `dreamina-seedance-2-5-260628` |
+| Seedance | `dreamina-seedance-2-0-260128`, `dreamina-seedance-2-0-fast-260128`, `seed-2-0-mini-260428`, `dreamina-seedance-2-5-260628` |
 | Gemini Omni | `gemini-omni-flash-preview` |
 | Kling | `kling-3.0` |
 | Vidu | `viduq3-pro`, `viduq3-turbo` |
-| MiniMax | `MiniMax-H3` |
 | LTX | `ltx-2-5-fast`, `ltx-2-5-pro` |
 | FLUX | `flux-3` |
 | Grok Imagine | `grok-imagine-video-1.5`, `grok-imagine-video` |
@@ -58,7 +57,6 @@ Parameters are not interchangeable across models. Kling uses 3–15 seconds and 
 | Gemini Omni Flash | 3–10 seconds, `16:9` or `9:16` |
 | Kling 3.0 | 3–15 seconds, `720p`/`1080p`/`4k`, optional first and last frames, and optional audio |
 | Vidu Q3 | 1–16 seconds, `720p`/`1080p`, first and last frames, audio, and `seed` |
-| MiniMax H3 | 5–15 seconds, `768p`/`2k`; `content` can combine text with image, video, or audio references |
 | LTX 2.5 | Fixed `duration`, pixel dimensions, and `fps` combinations; first and last frames are supplied through `content` |
 | FLUX 3 | 5–20 seconds, `hd`/`fhd`, keyframes or video continuation, and `safety_tolerance` |
 | Grok Imagine Video | 1–15 seconds, `480p`/`720p`/`1080p`, `aspect_ratio`, and `seed` |

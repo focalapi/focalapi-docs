@@ -9,11 +9,10 @@ description: 查询当前视频模型，创建任务、轮询状态并下载成�
 
 | 系列 | 当前模型 ID |
 | --- | --- |
-| Seedance | `dreamina-seedance-2-0-260128`、`dreamina-seedance-2-0-fast-260128`、`dreamina-seedance-2-0-mini-260615`、`dreamina-seedance-2-5-260628` |
+| Seedance | `dreamina-seedance-2-0-260128`、`dreamina-seedance-2-0-fast-260128`、`seed-2-0-mini-260428`、`dreamina-seedance-2-5-260628` |
 | Gemini Omni | `gemini-omni-flash-preview` |
 | Kling | `kling-3.0` |
 | Vidu | `viduq3-pro`、`viduq3-turbo` |
-| MiniMax | `MiniMax-H3` |
 | LTX | `ltx-2-5-fast`、`ltx-2-5-pro` |
 | FLUX | `flux-3` |
 | Grok Imagine | `grok-imagine-video-1.5`、`grok-imagine-video` |
@@ -58,10 +57,9 @@ curl https://api.focalapi.com/v1/video/generations \
 | Gemini Omni Flash | 3–10 秒，`16:9` 或 `9:16` |
 | Kling 3.0 | 3–15 秒，`720p`/`1080p`/`4k`，支持首尾帧与可选音频 |
 | Vidu Q3 | 1–16 秒，`720p`/`1080p`，支持首尾帧、音频与 `seed` |
-| MiniMax H3 | 5–15 秒，`768p`/`2k`，通过 `content` 组合文本、图片、视频或音频参考 |
-| LTX 2.5 | 使用固定的 `duration`、像素尺寸与 `fps` 组合，通过 `content` 提供首尾帧 |
+| LTX 2.5 | 官方矩阵：fast 6–20 秒（偶数）、pro 6–10 秒；像素尺寸 `1280x720`–`3840x2160`（fast），`fps` 24/25/48/50（fast）或 24/25/50（pro）；通过 `content` 提供首尾帧 |
 | FLUX 3 | 5–20 秒，`hd`/`fhd`，支持关键帧或视频续写以及 `safety_tolerance` |
-| Grok Imagine Video | 1–15 秒，`480p`/`720p`/`1080p`，支持 `aspect_ratio` 与 `seed` |
+| Grok Imagine Video | 1–15 秒，1.5 支持 `480p`/`720p`/`1080p`、旧版 `480p`/`720p`；支持 `aspect_ratio` |
 
 例如查询 FLUX 3 的完整实时契约：
 
