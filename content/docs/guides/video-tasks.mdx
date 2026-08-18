@@ -61,6 +61,10 @@ curl https://api.focalapi.com/v1/video/generations \
 | FLUX 3 | 5–20 秒，`hd`/`fhd`，支持关键帧或视频续写以及 `safety_tolerance`（纯文生 0–4，带图输入时上限 2） |
 | Grok Imagine Video | 1–15 秒；1.5 支持文生视频与图生视频（`image`）的 `480p`/`720p`/`1080p`，参考生视频（`reference_images` 1–7 张）封顶 `720p`；旧版仅 `480p`/`720p` 且只支持图生视频；官方契约无 `seed` |
 
+<Callout type="info">
+多参考图的绑定方式是**数组顺序 + 提示词中用「图1」「图2」指代**，官方契约没有 `<img>` 之类的标签语法（标签会作为字面文本透传给模型）。Grok 视频另有合成提示词预算：文本加每张参考图约 500 字符的标注，合计不得超过 4096 字符。Seedance 系列同理按顺序绑定。
+</Callout>
+
 例如查询 FLUX 3 的完整实时契约：
 
 ```bash

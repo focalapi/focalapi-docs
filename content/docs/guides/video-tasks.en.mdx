@@ -61,6 +61,10 @@ Parameters are not interchangeable across models. Kling uses 3–15 seconds and 
 | FLUX 3 | 5–20 seconds, `hd`/`fhd`, keyframes or video continuation, and `safety_tolerance` (0–4 for text-to-video, capped at 2 with image inputs) |
 | Grok Imagine Video | 1–15 seconds; 1.5 supports `480p`/`720p`/`1080p` for text-to-video and image-to-video (`image`), while reference-to-video (`reference_images`, 1–7 images) is capped at `720p`; the legacy model only offers `480p`/`720p` image-to-video; the official contract has no `seed` |
 
+<Callout type="info">
+Reference images bind by **array order plus ordinal references in the prompt** ("image 1", "image 2") — the official contract has no tag syntax such as `<img>` (tags pass through to the model as literal text). Grok video also has a composite prompt budget: text plus roughly 500 characters of annotation per reference image must stay within 4096 characters. Seedance families bind by order the same way.
+</Callout>
+
 For example, inspect the complete live FLUX 3 contract:
 
 ```bash
