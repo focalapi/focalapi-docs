@@ -24,6 +24,7 @@ const publicCreativeOperations: Record<string, readonly string[]> = {
   '/kling/v1/videos/image2video': ['post'],
   '/kling/v1/videos/image2video/{task_id}': ['get'],
   '/jimeng/': ['post'],
+  '/v1/tasks': ['get'],
   '/v1/video/generations': ['post'],
   '/v1/video/generations/{task_id}': ['get', 'delete'],
   '/v1beta/models/{model}:generateContent': ['post'],

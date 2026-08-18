@@ -1163,7 +1163,18 @@
         "tags": [
           "视频生成"
         ],
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            },
+            "description": "可选幂等键（8-128 个可打印 ASCII 字符）。同一 Key 的重复创建请求会返回原任务（idempotent_replay: true）而不重复计费；调用方在结果不确定的重试中应复用同一 Key。"
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2546,7 +2557,18 @@
         "tags": [
           "视频生成"
         ],
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            },
+            "description": "可选幂等键（8-128 个可打印 ASCII 字符）。同一 Key 的重复创建请求会返回原任务（idempotent_replay: true）而不重复计费；调用方在结果不确定的重试中应复用同一 Key。"
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -2694,6 +2716,124 @@
                   "status": "succeeded",
                   "content": {
                     "video_url": "https://example.com/v.mp4"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/tasks": {
+      "get": {
+        "tags": [
+          "视频生成"
+        ],
+        "summary": "列出当前 Key 用户的近期任务",
+        "description": "分页返回当前用户的任务（最新在前），用于提交输出丢失后对账找回 task_id。`status` 用外部词表 queued/in_progress/completed/failed/cancelled 过滤；`action` 可选（如 generate、image_generation）。不含 prompt 等请求内容。",
+        "operationId": "listTasks",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "minimum": 1,
+              "maximum": 100
+            },
+            "description": "每页数量，默认 20，上限 100"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            },
+            "description": "偏移量"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "queued",
+                "in_progress",
+                "completed",
+                "failed",
+                "cancelled"
+              ]
+            },
+            "description": "按外部状态过滤"
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "按任务类型过滤"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "任务列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "object": {
+                      "type": "string",
+                      "example": "list"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "task_id": {
+                            "type": "string"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "action": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "example": "in_progress"
+                          },
+                          "progress": {
+                            "type": "integer"
+                          },
+                          "quota": {
+                            "type": "integer"
+                          },
+                          "created_at": {
+                            "type": "integer",
+                            "description": "Unix 时间戳"
+                          },
+                          "updated_at": {
+                            "type": "integer",
+                            "description": "Unix 时间戳"
+                          }
+                        }
+                      }
+                    }
                   }
                 }
               }
