@@ -53,13 +53,13 @@ Parameters are not interchangeable across models. Kling uses 3–15 seconds and 
 
 | Family | Important constraints |
 | --- | --- |
-| Seedance 2.5 | 4–30 seconds, `480p`/`720p`, multiple `ratio` values, and native audio |
-| Gemini Omni Flash | 3–10 seconds, `16:9` or `9:16` |
-| Kling 3.0 | 3–15 seconds, `720p`/`1080p`/`4k`, optional first and last frames, and optional audio |
-| Vidu Q3 | 1–16 seconds, `720p`/`1080p`, first and last frames, audio, and `seed` |
-| LTX 2.5 | Fixed `duration`, pixel dimensions, and `fps` combinations; first and last frames are supplied through `content` |
-| FLUX 3 | 5–20 seconds, `hd`/`fhd`, keyframes or video continuation, and `safety_tolerance` |
-| Grok Imagine Video | 1–15 seconds, `480p`/`720p`/`1080p`, `aspect_ratio`, and `seed` |
+| Seedance 2.5 | 4–30 seconds, `480p`/`720p`/`1080p` (1080p added on 2026-08-17), multiple `ratio` values, and native audio |
+| Gemini Omni Flash | 3–10 seconds, `16:9` or `9:16`, up to 14 reference images (video references are not supported) |
+| Kling 3.0 | 3–15 seconds, `720p`/`1080p`/`4k`, optional first and last frames (at most 2 images), and optional audio |
+| Vidu Q3 | 1–16 seconds, `720p`/`1080p`, first and last frames, audio, and `seed` (maximum 2147483647) |
+| LTX 2.5 | Official matrix: fast 6–20 seconds (even values), pro 6–10 seconds; pixel sizes `1280x720`–`3840x2160` (fast); `fps` 24/25/48/50 (fast) or 24/25/50 (pro); first and last frames are supplied through `content` |
+| FLUX 3 | 5–20 seconds, `hd`/`fhd`, keyframes or video continuation, and `safety_tolerance` (0–4 for text-to-video, capped at 2 with image inputs) |
+| Grok Imagine Video | 1–15 seconds; 1.5 supports `480p`/`720p`/`1080p` for text-to-video and image-to-video (`image`), while reference-to-video (`reference_images`, 1–7 images) is capped at `720p`; the legacy model only offers `480p`/`720p` image-to-video; the official contract has no `seed` |
 
 For example, inspect the complete live FLUX 3 contract:
 
@@ -79,14 +79,34 @@ curl https://api.focalapi.com/v1/video/generations/task_xxxxxxxx \
 
 | Status | Meaning | Action |
 | --- | --- | --- |
-| `queued` | Waiting | Keep polling the same task |
+| `queued` | Waiting | Keep polling the same task; queued tasks can be cancelled |
 | `processing` / `in_progress` | Generating | Keep polling the same task |
 | `succeeded` / `completed` | Done | Use the result URL or download the asset |
 | `failed` | Failed | Read `error`; do not blindly resubmit the same generation request |
+| `cancelled` | Cancelled | The task was stopped and the charge refunded; submit a new task if needed |
+
+A failed task with `error.code` `TaskExpired` exceeded its execution deadline (including tasks whose submission state stayed unknown past the 10-minute reconciliation window); the charge is refunded automatically.
 
 Poll every 5–10 seconds with exponential backoff. A queued or running task is not a failure, so do not create duplicate tasks while waiting.
 
-## 4. Download the result
+## 4. Cancel a task
+
+Queued tasks can be cancelled with `DELETE /v1/video/generations/{task_id}`. A successful cancellation returns `{ "id": "...", "status": "cancelled", "cancelled": true }` and the charge is refunded automatically:
+
+```bash
+curl -X DELETE https://api.focalapi.com/v1/video/generations/task_xxxxxxxx \
+  -H "Authorization: Bearer $FOCALAPI_KEY"
+```
+
+| Response | Meaning |
+| --- | --- |
+| 200 `cancelled: true` | Cancelled and refunded |
+| 409 `task_already_running` | Generation already started; keep polling until it finishes |
+| 409 `task_already_finished` | The task already finished; nothing to cancel |
+| 404 `task_not_found` | The task does not exist or belongs to another key |
+| 502 `task_cancel_failed` | Upstream cancellation failed; retry later |
+
+## 5. Download the result
 
 Use the result URL returned by a successful task. For tasks that support the unified content proxy, `GET /v1/videos/{task_id}/content` streams the video file and avoids expiring signed URLs.
 

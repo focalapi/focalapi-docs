@@ -40,8 +40,8 @@ Do not apply one fixed parameter set to every model:
 
 | Family | Important differences |
 | --- | --- |
-| GPT Image 2 | `size`, `quality`, `background`, and a single reference image with `mask` |
-| Seedream | Version-specific `size` tiers, reference-image limits, `watermark`, and prompt optimization |
+| GPT Image 2 | `size` (default `1024x1024`, edges 1024–3840 in multiples of 16), `quality` (low/medium/high; omitted bills as low), `background` (auto/opaque), `n` 1–8, up to 16 reference images; `mask` requires exactly one reference image |
+| Seedream | 4.0 defaults to `2048x2048` (tiers 1K/2K/4K, up to 10 reference images); 4.5 offers 2K/4K; 5.0 Pro generates a single image per request (tiers 1K/1.5K/2K); 5.0 (lite) accepts up to 14 reference images (tiers 2K/3K/4K); all versions add `watermark` and prompt optimization |
 | Grok Imagine 2.0 | `aspect_ratio`, `resolution`, `quality`, and `seed`; up to 10 outputs |
 | Kling Image 3.0 | `aspect_ratio` and `negative_prompt`; up to 9 outputs; a reference image cannot be combined with a negative prompt |
 | Krea 2 | `aspect_ratio`, fixed `1K` resolution, `creativity`, style references, and a moodboard; one output per request |
@@ -60,10 +60,10 @@ Gemini image models use the native `generateContent` endpoint:
 
 | Current model ID | Product |
 | --- | --- |
-| `gemini-2.5-flash-image` | Gemini 2.5 Flash Image |
-| `gemini-3-pro-image` | Gemini 3 Pro Image |
-| `gemini-3.1-flash-image` | Gemini 3.1 Flash Image |
-| `gemini-3.1-flash-lite-image` | Gemini 3.1 Flash Lite Image |
+| `gemini-2.5-flash-image` | At most 1 reference image, supplied as `inlineData` (`fileData` is not supported); fixed 1K output |
+| `gemini-3-pro-image` | Up to 14 reference images; `imageSize` 1K/2K/4K |
+| `gemini-3.1-flash-image` | Up to 14 reference images; `imageSize` 1K/2K/4K; 15 `aspectRatio` values (including `1:4`, `4:1`, `1:8`, `8:1`); supports `thinkingLevel`, `temperature`, and `topP` |
+| `gemini-3.1-flash-lite-image` | Up to 14 reference images; fixed 1K output; the same 15 `aspectRatio` values; supports `thinkingLevel`, `temperature`, and `topP` |
 
 ```bash
 curl 'https://api.focalapi.com/v1beta/models/gemini-3.1-flash-image:generateContent' \

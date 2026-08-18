@@ -53,13 +53,13 @@ curl https://api.focalapi.com/v1/video/generations \
 
 | 系列 | 主要约束 |
 | --- | --- |
-| Seedance 2.5 | 4–30 秒，`480p`/`720p`，支持多种 `ratio` 与原生音频 |
-| Gemini Omni Flash | 3–10 秒，`16:9` 或 `9:16` |
-| Kling 3.0 | 3–15 秒，`720p`/`1080p`/`4k`，支持首尾帧与可选音频 |
-| Vidu Q3 | 1–16 秒，`720p`/`1080p`，支持首尾帧、音频与 `seed` |
+| Seedance 2.5 | 4–30 秒，`480p`/`720p`/`1080p`（1080p 为 2026-08-17 新增档位），支持多种 `ratio` 与原生音频 |
+| Gemini Omni Flash | 3–10 秒，`16:9` 或 `9:16`，参考图至多 14 张（不支持视频参考） |
+| Kling 3.0 | 3–15 秒，`720p`/`1080p`/`4k`，支持首尾帧（至多 2 张）与可选音频 |
+| Vidu Q3 | 1–16 秒，`720p`/`1080p`，支持首尾帧、音频与 `seed`（上限 2147483647） |
 | LTX 2.5 | 官方矩阵：fast 6–20 秒（偶数）、pro 6–10 秒；像素尺寸 `1280x720`–`3840x2160`（fast），`fps` 24/25/48/50（fast）或 24/25/50（pro）；通过 `content` 提供首尾帧 |
-| FLUX 3 | 5–20 秒，`hd`/`fhd`，支持关键帧或视频续写以及 `safety_tolerance` |
-| Grok Imagine Video | 1–15 秒，1.5 支持 `480p`/`720p`/`1080p`、旧版 `480p`/`720p`；支持 `aspect_ratio` |
+| FLUX 3 | 5–20 秒，`hd`/`fhd`，支持关键帧或视频续写以及 `safety_tolerance`（纯文生 0–4，带图输入时上限 2） |
+| Grok Imagine Video | 1–15 秒；1.5 支持文生视频与图生视频（`image`）的 `480p`/`720p`/`1080p`，参考生视频（`reference_images` 1–7 张）封顶 `720p`；旧版仅 `480p`/`720p` 且只支持图生视频；官方契约无 `seed` |
 
 例如查询 FLUX 3 的完整实时契约：
 
@@ -79,14 +79,34 @@ curl https://api.focalapi.com/v1/video/generations/task_xxxxxxxx \
 
 | 状态 | 含义 | 建议动作 |
 | --- | --- | --- |
-| `queued` | 排队中 | 继续轮询同一个任务 |
+| `queued` | 排队中 | 继续轮询同一个任务；排队中可取消 |
 | `processing` / `in_progress` | 生成中 | 继续轮询同一个任务 |
 | `succeeded` / `completed` | 成功 | 取结果 URL 或下载成片 |
 | `failed` | 失败 | 读取 `error`，不要重复提交同一个生成请求 |
+| `cancelled` | 已取消 | 任务已停止，费用已退还；如需要请重新提交新任务 |
+
+失败任务的 `error.code` 为 `TaskExpired` 时表示任务超过执行期限（含提交状态未知、10 分钟对账期后终止的情况），费用会自动退还。
 
 建议每 5–10 秒轮询一次，并配合指数退避。排队或生成中不是失败，不要因为暂时没有结果而创建重复任务。
 
-## 4. 下载成片
+## 4. 取消任务
+
+排队中的任务可以通过 `DELETE /v1/video/generations/{task_id}` 取消，取消成功返回 `{ "id": "...", "status": "cancelled", "cancelled": true }`，费用自动退还：
+
+```bash
+curl -X DELETE https://api.focalapi.com/v1/video/generations/task_xxxxxxxx \
+  -H "Authorization: Bearer $FOCALAPI_KEY"
+```
+
+| 响应 | 含义 |
+| --- | --- |
+| 200 `cancelled: true` | 已取消并退款 |
+| 409 `task_already_running` | 任务已开始生成，无法取消；继续轮询等待完成 |
+| 409 `task_already_finished` | 任务已结束，无需取消 |
+| 404 `task_not_found` | 任务不存在或不属于当前 Key |
+| 502 `task_cancel_failed` | 上游取消失败，可稍后重试 |
+
+## 5. 下载成片
 
 任务成功后使用响应中的结果 URL。对支持统一内容代理的任务，也可以调用 `GET /v1/videos/{task_id}/content` 获取视频文件流，避免签名 URL 过期。
 

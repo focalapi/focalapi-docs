@@ -31,10 +31,13 @@ When troubleshooting, record the HTTP status, `error.code`, and the request id f
 | 500 | `internal_error` | Server error | Contact the operator with the request id |
 | 501 | `endpoint_unavailable` | Endpoint not implemented/open (e.g. Files, Fine-tunes) | Use an available endpoint instead |
 | 502/503 | `upstream_error` | Upstream model service failure | Retry later; report persistent failures |
+| 503 | `capacity_exhausted` | Creative capacity is full (queue admission limit reached) | The response carries `Retry-After` (usually 10 seconds); retry the same request with unchanged parameters — no need to switch models |
 
 ## Async task errors
 
-A failed video task is not an HTTP error — the task status becomes `failed`, details live in the task's `error` field, and the charge is refunded automatically.
+A failed video task is not an HTTP error — the task status becomes `failed`, details live in the task's `error` field, and the charge is refunded automatically. `error.code` `TaskExpired` means the task exceeded its execution deadline (including tasks whose submission state stayed unknown past the 10-minute reconciliation window); those are refunded as well.
+
+When cancelling a queued task, 409 `task_already_running` / `task_already_finished` are normal contract responses: the first means generation already started and cannot be stopped, the second means the task already finished.
 
 ## Troubleshooting checklist
 

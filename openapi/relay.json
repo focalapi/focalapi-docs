@@ -1219,7 +1219,7 @@
       "get": {
         "summary": "获取视频生成任务状态",
         "deprecated": false,
-        "description": "查询视频生成任务的状态和结果。\n\n任务状态：\n- `queued`: 排队中\n- `in_progress`: 生成中\n- `completed`: 已完成\n- `failed`: 失败\n",
+        "description": "查询视频生成任务的状态和结果。\n\n任务状态：\n- `queued`: 排队中（可通过 DELETE 同路径取消）\n- `in_progress`: 生成中\n- `completed`: 已完成\n- `failed`: 失败（`error.code=TaskExpired` 表示超过执行期限，费用自动退还）\n- `cancelled`: 已取消（费用已退还）",
         "operationId": "getVideoGeneration",
         "tags": [
           "视频生成"
@@ -1265,6 +1265,140 @@
             "BearerAuth": []
           }
         ]
+      },
+      "delete": {
+        "tags": [
+          "视频生成"
+        ],
+        "summary": "取消视频生成任务",
+        "description": "取消排队中的视频生成任务，成功返回 `{ \"id\": \"...\", \"status\": \"cancelled\", \"cancelled\": true }`，费用自动退还。\n\n- 409 `task_already_running`: 任务已开始生成，无法取消\n- 409 `task_already_finished`: 任务已结束，无需取消\n- 404 `task_not_found`: 任务不存在或不属于当前 Key\n- 502 `task_cancel_failed`: 上游取消失败，可稍后重试",
+        "operationId": "cancelVideoGeneration",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "任务 ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "任务已取消",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "任务 ID"
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "cancelled"
+                    },
+                    "cancelled": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "任务不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "example": "invalid_request_error"
+                        },
+                        "code": {
+                          "type": "string",
+                          "example": "task_not_found"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "任务已开始运行或已结束，无法取消",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "example": "invalid_request_error"
+                        },
+                        "code": {
+                          "type": "string",
+                          "example": "task_already_running"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "上游取消失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "example": "invalid_request_error"
+                        },
+                        "code": {
+                          "type": "string",
+                          "example": "task_cancel_failed"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/v1/messages": {
@@ -4521,12 +4655,13 @@
           },
           "status": {
             "type": "string",
-            "description": "任务状态",
+            "description": "任务状态（failed 且 error.code=TaskExpired 表示超过执行期限，费用自动退还；cancelled 表示任务已取消并退款）",
             "enum": [
               "queued",
               "in_progress",
               "completed",
-              "failed"
+              "failed",
+              "cancelled"
             ],
             "example": "completed"
           },

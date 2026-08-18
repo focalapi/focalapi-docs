@@ -40,8 +40,8 @@ curl https://api.focalapi.com/v1/images/generations \
 
 | 系列 | 主要参数差异 |
 | --- | --- |
-| GPT Image 2 | `size`、`quality`、`background`，以及单参考图配合 `mask` |
-| Seedream | 各版本有不同的 `size` 档位、参考图上限、`watermark` 与提示词优化参数 |
+| GPT Image 2 | `size`（默认 `1024x1024`，边长 1024–3840 且为 16 的倍数）、`quality`（low/medium/high，缺省按 low 计）、`background`（auto/opaque），`n` 1–8，最多 16 张参考图；`mask` 需要恰好 1 张参考图 |
+| Seedream | 4.0 默认 `2048x2048`（档位 1K/2K/4K，最多 10 张参考图）；4.5 档位 2K/4K；5.0 Pro 仅单图生成（档位 1K/1.5K/2K）；5.0（lite）最多 14 张参考图（档位 2K/3K/4K）；各版本另有 `watermark` 与提示词优化参数 |
 | Grok Imagine 2.0 | `aspect_ratio`、`resolution`、`quality`、`seed`，最多生成 10 张 |
 | Kling Image 3.0 | `aspect_ratio`、`negative_prompt`，最多生成 9 张；参考图不能与负面提示词同时使用 |
 | Krea 2 | `aspect_ratio`、固定 `1K` 分辨率、`creativity`、风格参考图与 moodboard，每次生成 1 张 |
@@ -60,10 +60,10 @@ Gemini 图像模型使用原生 `generateContent` 接口：
 
 | 当前模型 ID | 说明 |
 | --- | --- |
-| `gemini-2.5-flash-image` | Gemini 2.5 Flash Image |
-| `gemini-3-pro-image` | Gemini 3 Pro Image |
-| `gemini-3.1-flash-image` | Gemini 3.1 Flash Image |
-| `gemini-3.1-flash-lite-image` | Gemini 3.1 Flash Lite Image |
+| `gemini-2.5-flash-image` | 至多 1 张参考图，且必须为 `inlineData`（不支持 `fileData`）；固定 1K 输出 |
+| `gemini-3-pro-image` | 参考图至多 14 张；`imageSize` 1K/2K/4K |
+| `gemini-3.1-flash-image` | 参考图至多 14 张；`imageSize` 1K/2K/4K；`aspectRatio` 支持 15 档（含 `1:4`、`4:1`、`1:8`、`8:1`）；支持 `thinkingLevel`、`temperature`、`topP` |
+| `gemini-3.1-flash-lite-image` | 参考图至多 14 张；固定 1K 输出；`aspectRatio` 同样支持 15 档；支持 `thinkingLevel`、`temperature`、`topP` |
 
 ```bash
 curl 'https://api.focalapi.com/v1beta/models/gemini-3.1-flash-image:generateContent' \

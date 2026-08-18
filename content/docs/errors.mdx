@@ -31,10 +31,13 @@ description: 错误响应格式与常见错误码排查指引
 | 500 | `internal_error` | 服务端错误 | 带 request id 联系运营方 |
 | 501 | `endpoint_unavailable` | 端点未实现/未开放（如 Files、Fine-tunes） | 换用已开放端点 |
 | 502/503 | `upstream_error` | 上游模型服务异常 | 稍后重试；持续失败联系运营方 |
+| 503 | `capacity_exhausted` | 创作容量已满（排队准入达到上限） | 响应头带 `Retry-After`（通常 10 秒）；按原参数稍后重试同一请求即可，无需换模型或改参数 |
 
 ## 异步任务错误
 
-视频等异步任务创建后失败不算 HTTP 错误——任务状态变为 `failed`，错误信息在任务的 `error` 字段，费用自动退回。
+视频等异步任务创建后失败不算 HTTP 错误——任务状态变为 `failed`，错误信息在任务的 `error` 字段，费用自动退回。其中 `error.code` 为 `TaskExpired` 时表示任务超过执行期限（含提交状态未知、10 分钟对账期后终止），同样会自动退款。
+
+取消排队中的任务遇到 409 `task_already_running` / `task_already_finished` 属于正常契约行为：前者表示任务已开始生成无法取消，后者表示任务已结束。
 
 ## 排障 checklist
 
