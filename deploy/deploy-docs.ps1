@@ -10,8 +10,8 @@ param(
 )
 
 # Deploy FocalAPI Docs: build a linux/amd64 image locally, export and upload it,
-# then import it on the server and join the docs service to the focalapi-llm Compose project.
-# Follow focalapi-llm/deploy/focalapi-llm/deploy.ps1 conventions and use non-interactive key authentication.
+# then import it on the server and join the docs service to the focalapi Compose project.
+# Follow focalapi/deploy/focalapi/deploy.ps1 conventions and use non-interactive key authentication.
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'

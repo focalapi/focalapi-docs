@@ -9,11 +9,11 @@ Deploy only after the user explicitly authorizes production work. The current pa
 
 ## Before deployment
 
-1. Work from `D:\hezh\Gitee\focalapi-docs`; inspect `git status --short`, `git diff --check`, and the target commit. Keep unrelated changes out of the release.
+1. Work from `D:\hezh\Gitee\focalapi\focalapi-docs`; inspect `git status --short`, `git diff --check`, and the target commit. Keep unrelated changes out of the release.
 2. When the platform OpenAPI contract changed, regenerate the API reference before validating:
 
    ```powershell
-   bun run sync:openapi D:/hezh/Gitee/focalapi-llm
+   bun run sync:openapi D:/hezh/Gitee/focalapi
    bun run gen:api
    ```
 

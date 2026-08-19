@@ -13,7 +13,7 @@ bun install          # Install dependencies.
 bun run dev          # Start the local development server with hot reload.
 bun run build        # Build the static site into out/.
 bun run start        # Preview the generated site locally.
-bun run sync:openapi # Synchronize OpenAPI from ../focalapi-llm or a supplied repository path.
+bun run sync:openapi # Synchronize OpenAPI from .. (the focalapi repository) or a supplied repository path.
 bun run gen:api      # Generate API reference pages from openapi/relay.json.
 bun run types:check  # Run type checking.
 ```
@@ -45,7 +45,7 @@ content/docs/
 
 ## OpenAPI synchronization workflow
 
-The canonical source for generated API reference pages is `docs/openapi/relay.json` in focalapi-llm:
+The canonical source for generated API reference pages is `docs/openapi/relay.json` in the focalapi repository (the parent directory):
 
 ```bash
 bun run sync:openapi # Copy the specification and inject the focalapi.com server.
@@ -63,7 +63,7 @@ Important rules:
 
 ## Deployment
 
-### Production Docker deployment with focalapi-llm
+### Production Docker deployment with focalapi
 
 The current release flow builds the image on the server. The local machine only archives and uploads a verified commit. Validate and push the target commit to `origin` first:
 
@@ -73,10 +73,10 @@ bun run build
 ./deploy/deploy-docs-server.sh [commit]
 ```
 
-The script verifies that the commit is pushed, archives and uploads source, builds the `linux/amd64` image, updates the `docs` service in the focalapi-llm Compose project, and checks `http://127.0.0.1:3001/zh/docs`.
+The script verifies that the commit is pushed, archives and uploads source, builds the `linux/amd64` image, updates the `docs` service in the focalapi Compose project, and checks `http://127.0.0.1:3001/zh/docs`.
 
-- The Compose service is defined in `deploy/focalapi-llm/docker-compose.prod.yml` in focalapi-llm. The application configuration must be deployed at least once before the first documentation release.
-- Public access requires `docs.focalapi.com` to proxy to `127.0.0.1:3001` and a matching DNS record. See the focalapi-llm deployment documentation for the Caddy example.
+- The Compose service is defined in `deploy/focalapi/docker-compose.prod.yml` in the focalapi repository. The application configuration must be deployed at least once before the first documentation release.
+- Public access requires `docs.focalapi.com` to proxy to `127.0.0.1:3001` and a matching DNS record. See the focalapi deployment documentation for the Caddy example.
 - The main site reads `general_setting.docs_link`, which defaults to `https://docs.focalapi.com`. Existing databases may require a one-time administrator update.
 - To roll back, retag a previous `focalapi-docs:<version>` image as `focalapi-docs:latest`, then run `docker compose ... up -d docs` with the production Compose file.
 
