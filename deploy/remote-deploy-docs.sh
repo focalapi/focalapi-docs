@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Install FocalAPI Docs on the server: import the image, tag latest, and join the focalapi-llm Compose project.
+# Install FocalAPI Docs on the server: import the image, tag latest, and join the focalapi Compose project.
 # Arguments: <image_archive_path> <version>
 set -Eeuo pipefail
 
@@ -21,19 +21,19 @@ cleanup_archive() {
 }
 trap cleanup_archive EXIT
 
-llm_root="/opt/focalapi-llm"
+llm_root="/opt/focalapi"
 env_file="${llm_root}/.env"
-compose_file="${llm_root}/current/deploy/focalapi-llm/docker-compose.prod.yml"
+compose_file="${llm_root}/current/deploy/focalapi/docker-compose.prod.yml"
 
 if [[ ! -f ${compose_file} ]]; then
   echo "找不到 app 发布的 compose 文件: ${compose_file}" >&2
-  echo "请先执行一次 app 部署（focalapi-llm/deploy/focalapi-llm/deploy.ps1）" >&2
+  echo "请先执行一次 app 部署（focalapi/deploy/focalapi/deploy.ps1）" >&2
   exit 1
 fi
 
 if ! grep -q '^  docs:' "${compose_file}"; then
   echo "当前 app 发布的 compose 不含 docs 服务（旧版本）" >&2
-  echo "请先用包含 docs 服务的 focalapi-llm 分支执行一次 app 部署，再重试" >&2
+  echo "请先用包含 docs 服务的 focalapi 主分支执行一次 app 部署，再重试" >&2
   exit 1
 fi
 
@@ -42,7 +42,7 @@ docker load -i "${image_archive_path}"
 docker tag "focalapi-docs:${version}" "focalapi-docs:latest"
 
 echo "启动/更新 docs 服务..."
-docker compose -p focalapi-llm --env-file "${env_file}" \
+docker compose -p focalapi --env-file "${env_file}" \
   -f "${compose_file}" up -d docs
 
 # Health check: /zh/docs must respond and contain the site identifier.
@@ -59,7 +59,7 @@ done
 
 if [[ ${healthy} -ne 1 ]]; then
   echo "docs 服务健康检查失败（http://127.0.0.1:${docs_port}/zh/docs）" >&2
-  docker compose -p focalapi-llm --env-file "${env_file}" \
+  docker compose -p focalapi --env-file "${env_file}" \
     -f "${compose_file}" logs --tail 50 docs >&2 || true
   exit 1
 fi
